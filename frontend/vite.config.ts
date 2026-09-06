@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import path from 'path'
 
 export default defineConfig({
-  base: '/conectaDAIA-PI-frontend/',
+  base: '/', // Railway serve na raiz do domínio (era '/conectaDAIA-PI-frontend/' pro GitHub Pages)
   plugins: [react()],
   resolve: {
     alias: {
