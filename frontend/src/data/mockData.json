@@ -1,0 +1,588 @@
+{
+  "usuarios": [
+    {
+      "id": "u1",
+      "email": "candidato@daia.com",
+      "nome": "Anderson Silva",
+      "role": "candidato",
+      "avatarUrl": "https://api.dicebear.com/7.x/initials/svg?seed=Anderson%20Silva&backgroundColor=0A2A5E",
+      "candidatoId": "c1"
+    },
+    {
+      "id": "u2",
+      "email": "recrutador@daia.com",
+      "nome": "Maria Gestora",
+      "role": "recrutador",
+      "avatarUrl": "https://api.dicebear.com/7.x/initials/svg?seed=Maria%20Gestora&backgroundColor=1E4AA8",
+      "empresaId": "e1"
+    },
+    {
+      "id": "u3",
+      "email": "admin@daia.com",
+      "nome": "Admin DAIA",
+      "role": "admin",
+      "avatarUrl": "https://api.dicebear.com/7.x/initials/svg?seed=Admin%20DAIA&backgroundColor=00A859"
+    },
+    {
+      "id": "u4",
+      "email": "joao@daia.com",
+      "nome": "João Silva",
+      "role": "candidato",
+      "avatarUrl": "https://api.dicebear.com/7.x/initials/svg?seed=Joao%20Silva&backgroundColor=0A2A5E",
+      "candidatoId": "c2"
+    }
+  ],
+  "credenciais": [
+    { "email": "candidato@daia.com", "senha": "123456", "userId": "u1" },
+    { "email": "recrutador@daia.com", "senha": "123456", "userId": "u2" },
+    { "email": "admin@daia.com", "senha": "123456", "userId": "u3" },
+    { "email": "joao@daia.com", "senha": "123456", "userId": "u4" }
+  ],
+  "candidatos": [
+    {
+      "id": "c1",
+      "nome": "Anderson Silva",
+      "email": "candidato@daia.com",
+      "cargo": "Engenheiro de Manutenção",
+      "nivel": "Pleno",
+      "setorAtuacao": "Industrial",
+      "localidade": "Anápolis - GO",
+      "anosExperiencia": 6,
+      "avatarUrl": "https://api.dicebear.com/7.x/initials/svg?seed=Anderson%20Silva&backgroundColor=0A2A5E",
+      "perfilCompleto": 78,
+      "skills": [
+        { "id": "s1", "nome": "CLP Avançado", "categoria": "operacao-manutencao" },
+        { "id": "s2", "nome": "Pneumática", "categoria": "operacao-manutencao" },
+        { "id": "s3", "nome": "Manutenção Preventiva", "categoria": "operacao-manutencao" },
+        { "id": "s4", "nome": "NR-10 (Elétrica)", "categoria": "normas-seguranca" },
+        { "id": "s5", "nome": "NR-35 (Altura)", "categoria": "normas-seguranca" }
+      ],
+      "certificacoes": [
+        { "id": "cert1", "nome": "NR-10", "validada": true },
+        { "id": "cert2", "nome": "NR-35", "validada": true }
+      ],
+      "alertasAtivos": true,
+      "candidaturas": ["cand1"]
+    },
+    {
+      "id": "c2",
+      "nome": "João Silva",
+      "email": "joao@daia.com",
+      "cargo": "Técnico em Eletromecânica",
+      "nivel": "Pleno",
+      "setorAtuacao": "Industrial",
+      "localidade": "Anápolis - GO",
+      "anosExperiencia": 4,
+      "avatarUrl": "https://api.dicebear.com/7.x/initials/svg?seed=Joao%20Silva&backgroundColor=0A2A5E",
+      "perfilCompleto": 85,
+      "skills": [
+        { "id": "s1", "nome": "CLP Avançado", "categoria": "operacao-manutencao" },
+        { "id": "s2", "nome": "Pneumática", "categoria": "operacao-manutencao" },
+        { "id": "s3", "nome": "Manutenção Preventiva", "categoria": "operacao-manutencao" },
+        { "id": "s4", "nome": "NR-10 (Elétrica)", "categoria": "normas-seguranca" },
+        { "id": "s5", "nome": "NR-35 (Altura)", "categoria": "normas-seguranca" }
+      ],
+      "certificacoes": [
+        { "id": "cert1", "nome": "NR-10", "validada": true },
+        { "id": "cert2", "nome": "NR-35", "validada": true }
+      ],
+      "alertasAtivos": true,
+      "candidaturas": []
+    },
+    {
+      "id": "c3",
+      "nome": "Carlos Mendes",
+      "email": "carlos@exemplo.com",
+      "cargo": "Eng. Produção Jr.",
+      "nivel": "Junior",
+      "setorAtuacao": "Industrial",
+      "localidade": "Anápolis - GO",
+      "anosExperiencia": 2,
+      "avatarUrl": "https://api.dicebear.com/7.x/initials/svg?seed=Carlos%20Mendes&backgroundColor=1E4AA8",
+      "perfilCompleto": 70,
+      "skills": [
+        { "id": "s10", "nome": "LEAN", "categoria": "gestao" },
+        { "id": "s11", "nome": "5S", "categoria": "gestao" },
+        { "id": "s12", "nome": "Inglês B1", "categoria": "idiomas" }
+      ],
+      "certificacoes": [],
+      "alertasAtivos": false,
+      "candidaturas": ["cand2"]
+    },
+    {
+      "id": "c4",
+      "nome": "Ana Lúcia Silva",
+      "email": "analucia@exemplo.com",
+      "cargo": "Analista de Processos",
+      "nivel": "Pleno",
+      "setorAtuacao": "Industrial",
+      "localidade": "Anápolis - GO",
+      "anosExperiencia": 5,
+      "avatarUrl": "https://api.dicebear.com/7.x/initials/svg?seed=Ana%20Lucia&backgroundColor=00A859",
+      "perfilCompleto": 80,
+      "skills": [
+        { "id": "s13", "nome": "Six Sigma", "categoria": "gestao" },
+        { "id": "s14", "nome": "AutoCAD", "categoria": "tecnica" }
+      ],
+      "certificacoes": [],
+      "alertasAtivos": true,
+      "candidaturas": ["cand3"]
+    },
+    {
+      "id": "c5",
+      "nome": "Mariana Costa",
+      "email": "mariana@exemplo.com",
+      "cargo": "Eng. Sênior",
+      "nivel": "Sênior",
+      "setorAtuacao": "Industrial",
+      "localidade": "Anápolis - GO",
+      "anosExperiencia": 9,
+      "avatarUrl": "https://api.dicebear.com/7.x/initials/svg?seed=Mariana%20Costa&backgroundColor=D92D20",
+      "perfilCompleto": 92,
+      "skills": [
+        { "id": "s10", "nome": "LEAN", "categoria": "gestao" },
+        { "id": "s15", "nome": "Inglês C1", "categoria": "idiomas" },
+        { "id": "s16", "nome": "SAP", "categoria": "tecnica" }
+      ],
+      "certificacoes": [],
+      "alertasAtivos": false,
+      "candidaturas": ["cand4"]
+    },
+    {
+      "id": "c6",
+      "nome": "Roberto Almeida",
+      "email": "roberto@exemplo.com",
+      "cargo": "Eng. Produção Pleno",
+      "nivel": "Pleno",
+      "setorAtuacao": "Industrial",
+      "localidade": "Anápolis - GO",
+      "anosExperiencia": 6,
+      "avatarUrl": "https://api.dicebear.com/7.x/initials/svg?seed=Roberto%20Almeida&backgroundColor=FFC72C",
+      "perfilCompleto": 88,
+      "skills": [
+        { "id": "s17", "nome": "Gestão de Equipes", "categoria": "gestao" },
+        { "id": "s18", "nome": "ISO 9001", "categoria": "normas-seguranca" }
+      ],
+      "certificacoes": [],
+      "alertasAtivos": true,
+      "candidaturas": ["cand5"]
+    },
+    {
+      "id": "c7",
+      "nome": "Ricardo Santos",
+      "email": "ricardo@exemplo.com",
+      "cargo": "Engenheiro de Processos Sênior",
+      "nivel": "Sênior",
+      "setorAtuacao": "Farmacêutico",
+      "localidade": "Anápolis - GO",
+      "anosExperiencia": 8,
+      "avatarUrl": "https://api.dicebear.com/7.x/initials/svg?seed=Ricardo%20Santos&backgroundColor=0A2A5E",
+      "perfilCompleto": 95,
+      "skills": [
+        { "id": "s20", "nome": "Six Sigma", "categoria": "gestao" },
+        { "id": "s21", "nome": "SCADA", "categoria": "tecnica" },
+        { "id": "s22", "nome": "Lógica CLP", "categoria": "tecnica" }
+      ],
+      "certificacoes": [],
+      "alertasAtivos": true,
+      "candidaturas": []
+    },
+    {
+      "id": "c8",
+      "nome": "Eliana Rocha",
+      "email": "eliana@exemplo.com",
+      "cargo": "Gerente de Supply Chain",
+      "nivel": "Gerência",
+      "setorAtuacao": "Logística",
+      "localidade": "Anápolis - GO",
+      "anosExperiencia": 5,
+      "avatarUrl": "https://api.dicebear.com/7.x/initials/svg?seed=Eliana%20Rocha&backgroundColor=00A859",
+      "perfilCompleto": 93,
+      "skills": [
+        { "id": "s23", "nome": "LEAN MFG", "categoria": "gestao" },
+        { "id": "s24", "nome": "SAP ERP", "categoria": "tecnica" },
+        { "id": "s25", "nome": "Exportação", "categoria": "gestao" }
+      ],
+      "certificacoes": [],
+      "alertasAtivos": false,
+      "candidaturas": []
+    }
+  ],
+  "empresas": [
+    {
+      "id": "e1",
+      "nome": "Pharmalogistics SA",
+      "cnpj": "12.345.678/0001-90",
+      "setor": "Farmacêutico",
+      "statusValidacao": "validada",
+      "sede": "DAIA Sector 2",
+      "logoInicial": "PH",
+      "totalVagasAtivas": 8
+    },
+    {
+      "id": "e2",
+      "nome": "Goiás Alimentos Ltda.",
+      "cnpj": "23.456.789/0001-12",
+      "setor": "Alimentos",
+      "statusValidacao": "validada",
+      "sede": "DAIA Sector 3",
+      "logoInicial": "GA",
+      "totalVagasAtivas": 5
+    },
+    {
+      "id": "e3",
+      "nome": "Pharma-Tech Labs",
+      "cnpj": "34.567.890/0001-23",
+      "setor": "Farmacêutico",
+      "statusValidacao": "validada",
+      "sede": "DAIA Sector 2",
+      "logoInicial": "PT",
+      "totalVagasAtivas": 3
+    },
+    {
+      "id": "e4",
+      "nome": "GreenFuel Bio",
+      "cnpj": "45.678.901/0001-34",
+      "setor": "Química",
+      "statusValidacao": "validada",
+      "sede": "DAIA Industrial",
+      "logoInicial": "GF",
+      "totalVagasAtivas": 4
+    },
+    {
+      "id": "e5",
+      "nome": "Indústrias Peixoto S.A.",
+      "cnpj": "12.345.678/0001-90",
+      "setor": "Química",
+      "statusValidacao": "em_analise",
+      "sede": "DAIA Sector 1",
+      "logoInicial": "IP",
+      "totalVagasAtivas": 0
+    },
+    {
+      "id": "e6",
+      "nome": "Manufatura Goiás Ltda",
+      "cnpj": "98.765.432/0001-10",
+      "setor": "Logística",
+      "statusValidacao": "em_analise",
+      "sede": "DAIA Sector 4",
+      "logoInicial": "MG",
+      "totalVagasAtivas": 0
+    },
+    {
+      "id": "e7",
+      "nome": "TechQuímica Brasil",
+      "cnpj": "55.444.333/0001-22",
+      "setor": "Química",
+      "statusValidacao": "divergencia_rfb",
+      "sede": "DAIA Sector 5",
+      "logoInicial": "TQ",
+      "totalVagasAtivas": 0
+    },
+    {
+      "id": "e8",
+      "nome": "Hypermarcas",
+      "cnpj": "11.222.333/0001-44",
+      "setor": "Logística",
+      "statusValidacao": "validada",
+      "sede": "DAIA Sector 1",
+      "logoInicial": "HY",
+      "totalVagasAtivas": 2
+    }
+  ],
+  "vagas": [
+    {
+      "id": "v1",
+      "codigo": "PHAR-CHM-001",
+      "titulo": "Sênior Chemical Process Analyst",
+      "empresaId": "e1",
+      "empresaNome": "Pharmalogistics SA",
+      "setorAtuacao": "Farmacêutico",
+      "distrito": "DAIA Sector 2",
+      "nivel": "Sênior",
+      "salarioMin": 8500,
+      "salarioMax": 12000,
+      "tipoContrato": "Full-time",
+      "descricao": "Responsável pela análise e otimização de processos químicos em ambiente farmacêutico de alta complexidade. Requer experiência com SCADA, Six Sigma e validação de processos.",
+      "habilidadesRequeridas": ["Six Sigma", "SCADA", "Lógica CLP", "Inglês"],
+      "ativa": true,
+      "dataPublicacao": "2025-03-15",
+      "totalCandidatos": 12
+    },
+    {
+      "id": "v2",
+      "codigo": "GOIAS-LOG-002",
+      "titulo": "Production Line Coordinator",
+      "empresaId": "e2",
+      "empresaNome": "Goiás Alimentos Ltda.",
+      "setorAtuacao": "Alimentos",
+      "distrito": "DAIA Sector 3",
+      "nivel": "Pleno",
+      "salarioMin": 6200,
+      "salarioMax": 7800,
+      "tipoContrato": "Urgent Hire",
+      "descricao": "Coordenação de linha de produção em ambiente alimentício. Contratação imediata.",
+      "habilidadesRequeridas": ["LEAN", "5S", "Gestão de Equipes"],
+      "ativa": true,
+      "dataPublicacao": "2025-03-18",
+      "totalCandidatos": 24
+    },
+    {
+      "id": "v3",
+      "codigo": "ENG-PRD-042",
+      "titulo": "Engenheiro de Produção Sênior",
+      "empresaId": "e2",
+      "empresaNome": "Goiás Alimentos Ltda.",
+      "setorAtuacao": "Alimentos",
+      "distrito": "DAIA Sector 3",
+      "nivel": "Sênior",
+      "salarioMin": 11000,
+      "salarioMax": 15000,
+      "tipoContrato": "Full-time",
+      "descricao": "Liderança técnica de times de produção com foco em otimização de linha.",
+      "habilidadesRequeridas": ["LEAN", "Six Sigma", "Inglês C1", "SAP"],
+      "ativa": true,
+      "dataPublicacao": "2025-03-10",
+      "totalCandidatos": 16
+    },
+    {
+      "id": "v4",
+      "codigo": "TECH-SIS-011",
+      "titulo": "Técnico de Sistemas Avançados",
+      "empresaId": "e3",
+      "empresaNome": "Pharma-Tech Labs",
+      "setorAtuacao": "Farmacêutico",
+      "distrito": "DAIA Sector 2",
+      "nivel": "Pleno",
+      "salarioMin": 4800,
+      "salarioMax": 6500,
+      "tipoContrato": "Full-time",
+      "descricao": "Manutenção e operação de sistemas industriais avançados.",
+      "habilidadesRequeridas": ["PLC Automation", "ISO 9001", "Mechatronics"],
+      "ativa": true,
+      "dataPublicacao": "2025-03-20",
+      "totalCandidatos": 8
+    },
+    {
+      "id": "v5",
+      "codigo": "GREEN-CAL-007",
+      "titulo": "Gerente de Caldeiras",
+      "empresaId": "e4",
+      "empresaNome": "GreenFuel Bio",
+      "setorAtuacao": "Química",
+      "distrito": "DAIA Industrial",
+      "nivel": "Gerência",
+      "salarioMin": 12000,
+      "salarioMax": 18000,
+      "tipoContrato": "Full-time",
+      "descricao": "Gestão de área de caldeiras industriais com certificação NR-13.",
+      "habilidadesRequeridas": ["NR-13", "Manutenção", "Gestão de Equipes"],
+      "ativa": true,
+      "dataPublicacao": "2025-03-12",
+      "totalCandidatos": 5
+    },
+    {
+      "id": "v6",
+      "codigo": "HYP-LOG-003",
+      "titulo": "Operador de Logística",
+      "empresaId": "e8",
+      "empresaNome": "Hypermarcas",
+      "setorAtuacao": "Logística",
+      "distrito": "DAIA Sector 1",
+      "nivel": "Junior",
+      "salarioMin": 2800,
+      "salarioMax": 3500,
+      "tipoContrato": "Urgent Hire",
+      "descricao": "Operação de logística em centro de distribuição farmacêutico.",
+      "habilidadesRequeridas": ["Operação de Empilhadeira", "WMS"],
+      "ativa": true,
+      "dataPublicacao": "2025-03-22",
+      "totalCandidatos": 18
+    },
+    {
+      "id": "v7",
+      "codigo": "ELE-MAN-009",
+      "titulo": "Eletricista de Manutenção",
+      "empresaId": "e4",
+      "empresaNome": "GreenFuel Bio",
+      "setorAtuacao": "Química",
+      "distrito": "DAIA Industrial",
+      "nivel": "Pleno",
+      "salarioMin": 4200,
+      "salarioMax": 5800,
+      "tipoContrato": "Full-time",
+      "descricao": "Manutenção elétrica industrial com turno noturno. MITSUBISHI.",
+      "habilidadesRequeridas": ["NR-10", "MITSUBISHI", "CLP"],
+      "ativa": true,
+      "dataPublicacao": "2025-03-14",
+      "totalCandidatos": 11
+    },
+    {
+      "id": "v8",
+      "codigo": "INS-SEG-015",
+      "titulo": "Inspetor de Segurança",
+      "empresaId": "e1",
+      "empresaNome": "Pharmalogistics SA",
+      "setorAtuacao": "Farmacêutico",
+      "distrito": "DAIA Sector 2",
+      "nivel": "Pleno",
+      "salarioMin": 3800,
+      "salarioMax": 5200,
+      "tipoContrato": "Full-time",
+      "descricao": "Inspeção de segurança do trabalho em tempo integral.",
+      "habilidadesRequeridas": ["NR-10", "NR-35", "ISO 45001"],
+      "ativa": true,
+      "dataPublicacao": "2025-03-19",
+      "totalCandidatos": 9
+    },
+    {
+      "id": "v9",
+      "codigo": "SUP-OP-021",
+      "titulo": "Supervisor de Operações Logísticas",
+      "empresaId": "e8",
+      "empresaNome": "Hypermarcas",
+      "setorAtuacao": "Logística",
+      "distrito": "DAIA Sector 1",
+      "nivel": "Sênior",
+      "salarioMin": 7500,
+      "salarioMax": 10000,
+      "tipoContrato": "Full-time",
+      "descricao": "Operações logísticas intermodais — gestão de frota e rotas.",
+      "habilidadesRequeridas": ["Gestão de Frota", "Roteirização", "Excel Avançado"],
+      "ativa": true,
+      "dataPublicacao": "2025-03-11",
+      "totalCandidatos": 14
+    },
+    {
+      "id": "v10",
+      "codigo": "ANA-QUA-033",
+      "titulo": "Analista de Controle de Qualidade",
+      "empresaId": "e1",
+      "empresaNome": "Pharmalogistics SA",
+      "setorAtuacao": "Farmacêutico",
+      "distrito": "DAIA Sector 2",
+      "nivel": "Pleno",
+      "salarioMin": 4500,
+      "salarioMax": 6000,
+      "tipoContrato": "Full-time",
+      "descricao": "Análise de qualidade em laboratório farmacêutico.",
+      "habilidadesRequeridas": ["Boas Práticas de Laboratório", "ISO 9001"],
+      "ativa": true,
+      "dataPublicacao": "2025-03-17",
+      "totalCandidatos": 7
+    },
+    {
+      "id": "v11",
+      "codigo": "TEC-MAN-055",
+      "titulo": "Técnico em Manutenção Industrial",
+      "empresaId": "e3",
+      "empresaNome": "Pharma-Tech Labs",
+      "setorAtuacao": "Farmacêutico",
+      "distrito": "DAIA Sector 2",
+      "nivel": "Pleno",
+      "salarioMin": 3500,
+      "salarioMax": 4800,
+      "tipoContrato": "Full-time",
+      "descricao": "Manutenção preventiva e corretiva em equipamentos farmacêuticos.",
+      "habilidadesRequeridas": ["NR-10", "Manutenção Preventiva", "Pneumática"],
+      "ativa": true,
+      "dataPublicacao": "2025-03-21",
+      "totalCandidatos": 6
+    }
+  ],
+  "candidaturas": [
+    {
+      "id": "cand1",
+      "candidatoId": "c1",
+      "vagaId": "v11",
+      "status": "entrevista_rh",
+      "dataAplicacao": "2025-03-22"
+    },
+    {
+      "id": "cand2",
+      "candidatoId": "c3",
+      "vagaId": "v3",
+      "status": "triagem",
+      "dataAplicacao": "2025-03-20"
+    },
+    {
+      "id": "cand3",
+      "candidatoId": "c4",
+      "vagaId": "v3",
+      "status": "triagem",
+      "dataAplicacao": "2025-03-19"
+    },
+    {
+      "id": "cand4",
+      "candidatoId": "c5",
+      "vagaId": "v3",
+      "status": "entrevista_rh",
+      "dataAplicacao": "2025-03-15",
+      "dataEntrevista": "2025-03-25T14:00:00"
+    },
+    {
+      "id": "cand5",
+      "candidatoId": "c6",
+      "vagaId": "v3",
+      "status": "avaliacao_tecnica",
+      "dataAplicacao": "2025-03-13",
+      "parecerTecnico": "Boa base teórica. Aguardando resultado do case prático sobre otimização de linha."
+    }
+  ],
+  "denuncias": [
+    {
+      "id": "d1",
+      "tipo": "vaga_falsa",
+      "alvo": "Vaga: Operador de Máquinas (Falsa)",
+      "descricao": "Cobrança de taxa para participação em processo seletivo.",
+      "status": "pendente",
+      "criadaEm": "2025-04-17T14:30:00"
+    },
+    {
+      "id": "d2",
+      "tipo": "comportamento_inadequado",
+      "alvo": "Empresa: Logística Anápolis",
+      "descricao": "Comportamento inadequado do recrutador relatado por 3 candidatos.",
+      "status": "pendente",
+      "criadaEm": "2025-04-17T09:15:00"
+    },
+    {
+      "id": "d3",
+      "tipo": "fraude",
+      "alvo": "Empresa: FakeCorp Ltda",
+      "descricao": "Divergência cadastral com RFB.",
+      "status": "em_investigacao",
+      "criadaEm": "2025-04-16T10:00:00"
+    }
+  ],
+  "logsAuditoria": [
+    {
+      "id": "log1",
+      "tipo": "VAGA_FECHADA",
+      "descricao": "Vaga 102 para 'Fechada'",
+      "alvoId": "v102",
+      "criadoEm": "2025-04-18T14:32:00"
+    },
+    {
+      "id": "log2",
+      "tipo": "EMPRESA_APROVADA",
+      "descricao": "Sistema aprovou automaticamente CNPJ 11.222...",
+      "alvoId": "e8",
+      "criadoEm": "2025-04-18T11:15:00"
+    },
+    {
+      "id": "log3",
+      "tipo": "USUARIO_ATUALIZADO",
+      "descricao": "Usuário USR-889 atualizou perfil",
+      "alvoId": "u889",
+      "criadoEm": "2025-04-17T16:40:00"
+    }
+  ],
+  "metricas": {
+    "vagasAtivas": 1240,
+    "novosCandidatos": 1240,
+    "empresasValidadas": 342,
+    "tempoMedioContratacao": 18,
+    "denunciasPendentes": 14
+  }
+}

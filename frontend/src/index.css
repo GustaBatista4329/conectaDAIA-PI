@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 219 45% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 219 45% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 219 45% 15%;
+
+    /* Azul institucional DAIA (bandeira de Goiás) */
+    --primary: 219 80% 20%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 219 30% 96%;
+    --secondary-foreground: 219 45% 15%;
+
+    --muted: 219 20% 96%;
+    --muted-foreground: 219 15% 45%;
+
+    --accent: 219 30% 94%;
+    --accent-foreground: 219 45% 15%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 219 20% 90%;
+    --input: 219 20% 90%;
+    --ring: 219 69% 39%;
+
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+
+  /* Scrollbar suave */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/40;
+  }
+}
+
+@layer utilities {
+  .gradient-daia {
+    background: linear-gradient(135deg, #0A2A5E 0%, #1E4AA8 100%);
+  }
+  .gradient-daia-soft {
+    background: linear-gradient(135deg, #E8F0FE 0%, #F8FAFC 100%);
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+}
