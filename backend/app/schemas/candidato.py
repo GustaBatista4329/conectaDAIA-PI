@@ -44,7 +44,7 @@ class CertificacaoRead(CamelModel):
 
 class CandidatoRead(CamelModel):
     """`nome`/`email` vêm de `candidato.usuario` (ver decisão 2 do
-    ESTRUTURA-BANCO-DE-DADOS.md). `candidaturas` é lista de IDs de **vaga**
+    docs/ESTRUTURA-BANCO-DE-DADOS.md). `candidaturas` é lista de IDs de **vaga**
     (não de candidatura) — assim que o frontend já espera."""
 
     id: int

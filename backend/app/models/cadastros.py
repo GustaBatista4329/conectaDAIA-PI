@@ -1,5 +1,5 @@
 # Tabelas de cadastro (lookup tables) — valores gerenciáveis como dado, não
-# fixados em código. Ver ESTRUTURA-BANCO-DE-DADOS.md, seção "Tabelas de
+# fixados em código. Ver docs/ESTRUTURA-BANCO-DE-DADOS.md, seção "Tabelas de
 # cadastro", pro formato padrão (codigo/nome/ordem/ativo) e o porquê.
 from __future__ import annotations
 

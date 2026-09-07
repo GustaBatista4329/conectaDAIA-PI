@@ -22,7 +22,7 @@ class EmpresaCreate(CamelModel):
 
 class EmpresaRead(CamelModel):
     """`totalVagasAtivas` não é coluna — sempre derivado por query (decisão 5
-    do ESTRUTURA-BANCO-DE-DADOS.md), por isso vem como parâmetro de `from_model`."""
+    do docs/ESTRUTURA-BANCO-DE-DADOS.md), por isso vem como parâmetro de `from_model`."""
 
     id: int
     nome: str

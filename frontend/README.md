@@ -2,7 +2,7 @@
 
 Plataforma digital integrada do **Distrito Agroindustrial de Anápolis (DAIA)** — conectando candidatos, recrutadores e administradores do polo industrial.
 
-Este repositório contém o **MVP do frontend** (todas as 9 telas dos designs funcionais), rodando com **dados mockados em JSON**. O projeto está preparado para plugar um backend real no futuro (FastAPI ou Spring Boot) trocando apenas a implementação em `src/lib/api.ts`.
+Este repositório contém o **frontend** (todas as 9 telas dos designs funcionais), consumindo a API real do backend (FastAPI) através da camada de abstração em `src/lib/api.ts`, que fala com o backend via `src/lib/http.ts`.
 
 ---
 
@@ -79,7 +79,7 @@ Todos os usuários usam a senha `123456`:
 | Roteamento         | **React Router v6** com guards por `UserRole`                               |
 | Ícones             | **lucide-react**                                                            |
 | Estado auth        | Context + `localStorage` (persistência de sessão)                           |
-| "Banco" de dados   | `src/data/mockData.json` carregado em memória via `structuredClone`         |
+| Dados              | API real do backend (FastAPI), via `src/lib/api.ts` + `src/lib/http.ts`     |
 | Notificações       | Toast provider próprio (sem libs externas)                                  |
 
 ### Paleta visual (uso moderado da bandeira)
@@ -102,11 +102,10 @@ conectadaia-frontend/
 │   ├── contexts/
 │   │   ├── AuthContext.tsx  # Sessão persistida em localStorage
 │   │   └── DataContext.tsx  # Trigger de refetch entre componentes
-│   ├── data/
-│   │   └── mockData.json    # Seed: usuários, empresas, vagas, candidaturas, etc.
 │   ├── hooks/
 │   ├── lib/
-│   │   ├── api.ts           # Camada de abstração — trocar para fetch() no futuro
+│   │   ├── api.ts           # Camada de abstração de dados — fala com o backend real
+│   │   ├── http.ts          # Cliente HTTP fino: JWT no localStorage, header Authorization
 │   │   └── utils.ts         # cn(), formatCurrency, formatDate, initials
 │   ├── pages/               # 9 páginas (+ Placeholder p/ rotas futuras)
 │   ├── routes/
@@ -126,42 +125,26 @@ conectadaia-frontend/
 
 ---
 
-## 🔌 Integração futura com backend
+## 🔌 Integração com o backend
 
 A camada `src/lib/api.ts` encapsula **todas as chamadas de dados** em funções tipadas
-(`apiAuth`, `apiVagas`, `apiCandidatos`, `apiCandidaturas`, `apiEmpresas`, `apiAdmin`).
+(`apiAuth`, `apiVagas`, `apiCandidatos`, `apiCandidaturas`, `apiEmpresas`, `apiAdmin`),
+que falam com o backend real (FastAPI) através de `src/lib/http.ts` — um cliente HTTP
+fino que guarda o JWT no `localStorage` e injeta o header `Authorization` automaticamente.
 
-Hoje cada função muta um objeto em memória. Para plugar um backend real:
-
-```typescript
-// Antes (mock)
-async listar(filtros: VagaFiltros) {
-  return delay(db.vagas.filter(...))
-}
-
-// Depois (real — FastAPI ou Spring)
-async listar(filtros: VagaFiltros) {
-  const params = new URLSearchParams(filtros as any).toString()
-  const res = await fetch(`${API_URL}/vagas?${params}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-  return res.json()
-}
-```
-
-**⚠️ Nota sobre convenções:** o frontend usa `camelCase` em todo lugar.
-- Se o backend for **FastAPI** (`snake_case`), inserir um adapter no boundary
-  usando [`camelcase-keys`](https://www.npmjs.com/package/camelcase-keys) ou similar.
-- Se o backend for **Spring Boot**, a serialização do Jackson já casa direto.
+**Nota sobre convenções:** o backend (FastAPI) já devolve os campos em `camelCase`
+(via alias do Pydantic), então não há adapter de casing no boundary. As únicas
+traduções feitas em `api.ts` são: IDs numéricos do backend viram `string` no
+frontend, e o papel `empresa` (backend) vira `recrutador` (frontend).
 
 ---
 
 ## ✅ Funcionalidades que realmente funcionam no MVP
 
-- [x] Login com validação real contra mock (role-based redirect após autenticar)
+- [x] Login com validação real contra o backend (role-based redirect após autenticar)
 - [x] Proteção de rotas por papel (`candidato` / `recrutador` / `admin`)
 - [x] Filtros de busca de vagas (setor multi-select, nível multi-select, faixa salarial, distrito, termo)
-- [x] Candidatura a vaga (persiste no mock em memória + toast de feedback)
+- [x] Candidatura a vaga (persiste via API + toast de feedback)
 - [x] Matching inteligente: cálculo real baseado em interseção de skills
 - [x] Kanban: mover candidato entre fases (via select), adicionar parecer RH
 - [x] Perfil do candidato: add/remove skills (com categorização), upload de PDF (mock), toggle de alertas
@@ -181,15 +164,6 @@ Estas rotas existem como placeholders navegáveis, prontas para implementação:
 Funcionalidades deferidas do documento original (RF-006, RF-007):
 - Sistema de notificações em tempo real
 - Dashboards consolidados
-
----
-
-## 🐛 Debug
-
-No console do navegador você tem acesso ao "banco" mockado:
-```javascript
-__DAIA_DB__  // objeto completo com todas as entidades
-```
 
 ---
 

@@ -48,7 +48,7 @@ class LogAuditoriaRead(CamelModel):
 
 class MetricasRead(CamelModel):
     """Todo campo é calculado por query — não existe tabela de métricas (ver
-    decisão 6 do ESTRUTURA-BANCO-DE-DADOS.md)."""
+    decisão 6 do docs/ESTRUTURA-BANCO-DE-DADOS.md)."""
 
     vagas_ativas: int
     novos_candidatos: int

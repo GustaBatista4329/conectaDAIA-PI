@@ -28,7 +28,7 @@ class Candidato(Base):
     alertas_ativos: Mapped[bool] = mapped_column(default=True)
 
     # nome/email do candidato NÃO estão aqui — vêm de User (ver decisão 2 do
-    # ESTRUTURA-BANCO-DE-DADOS.md)
+    # docs/ESTRUTURA-BANCO-DE-DADOS.md)
     nivel: Mapped[Nivel] = relationship()
     usuario: Mapped[User | None] = relationship(back_populates="candidato", uselist=False)
     skills: Mapped[list[Skill]] = relationship(

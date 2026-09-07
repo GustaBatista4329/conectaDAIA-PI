@@ -24,8 +24,8 @@ class UserRead(CamelModel):
     def from_model(cls, user: "User") -> "UserRead":
         """Monta o schema a partir do model — explícito porque `id` (vem de
         `user_id`) e `role` (vem de `user.tipo_usuario.codigo`) não são cópia
-        direta de atributo (ver ESTRUTURA-BANCO-DE-DADOS.md e a discussão sobre
-        Enum vs cadastro no APRENDIZADO-BACKEND.md)."""
+        direta de atributo (ver docs/ESTRUTURA-BANCO-DE-DADOS.md e a discussão
+        sobre Enum vs cadastro em docs/APRENDIZADO-BACKEND.md)."""
         return cls(
             id=user.user_id,
             email=user.email,

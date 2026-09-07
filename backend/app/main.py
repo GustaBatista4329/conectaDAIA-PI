@@ -29,7 +29,7 @@ app.include_router(candidaturas.router)
 app.include_router(admin.router)
 
 # Serve o frontend buildado (frontend/dist copiado pra cá — ver
-# APRENDIZADO-BACKEND.md), se existir. Precisa ser o ÚLTIMO registrado: é um
+# docs/APRENDIZADO-BACKEND.md), se existir. Precisa ser o ÚLTIMO registrado: é um
 # catch-all, e as rotas de API acima sempre têm prioridade sobre ele.
 _FRONTEND_DIST = os.path.join(os.path.dirname(__file__), "..", "frontend_dist")
 
