@@ -5,6 +5,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout'
 
 import Landing from '@/pages/Landing'
 import Login from '@/pages/Login'
+import Register from '@/pages/Register'
 import JobSearch from '@/pages/JobSearch'
 import CandidateDashboard from '@/pages/CandidateDashboard'
 import CandidateProfile from '@/pages/CandidateProfile'
@@ -20,6 +21,7 @@ export default function App() {
         {/* Público */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/registro" element={<Register />} />
         <Route path="/vagas" element={<JobSearch />} />
         <Route
           path="/setores"

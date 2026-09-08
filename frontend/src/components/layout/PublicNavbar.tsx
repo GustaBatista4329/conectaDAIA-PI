@@ -68,11 +68,14 @@ export function PublicNavbar() {
             </>
           ) : (
             <>
+              <Button variant="ghost" size="sm" onClick={() => nav('/registro?perfil=empresa')}>
+                Anunciar Vaga
+              </Button>
               <Button variant="outline" size="sm" onClick={() => nav('/login')}>
                 Entrar
               </Button>
-              <Button size="sm" onClick={() => nav('/login?action=anunciar')}>
-                Anunciar Vaga
+              <Button size="sm" onClick={() => nav('/registro')}>
+                Criar Conta
               </Button>
             </>
           )}

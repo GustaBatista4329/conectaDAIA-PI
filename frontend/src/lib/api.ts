@@ -246,6 +246,26 @@ function mapLog(l: BackendLog): LogAuditoria {
 // ============================================================
 // AUTH
 // ============================================================
+export interface CandidatoRegistro {
+  email: string
+  senha: string
+  nome: string
+  cargo: string
+  nivel: string // codigo de cd_niveis (junior/pleno/senior/gerencia)
+  setorAtuacao: string
+  localidade: string
+  anosExperiencia: number
+}
+
+export interface EmpresaRegistro {
+  email: string
+  senha: string
+  nome: string
+  cnpj: string
+  setor: string
+  sede: string
+}
+
 export const apiAuth = {
   async login(email: string, senha: string): Promise<User | null> {
     try {
@@ -259,6 +279,26 @@ export const apiAuth = {
       if (e instanceof ApiError && e.status === 401) return null
       throw e
     }
+  },
+
+  /** Cadastro público de candidato — cria User (role=candidato) + Candidato e já autentica. */
+  async registrarCandidato(dados: CandidatoRegistro): Promise<User> {
+    const res = await apiFetch<{ accessToken: string; tokenType: string; user: BackendUser }>(
+      '/candidatos',
+      { method: 'POST', body: dados, auth: false },
+    )
+    setToken(res.accessToken)
+    return mapUser(res.user)
+  },
+
+  /** Cadastro público de empresa — cria User (role=empresa) + Empresa e já autentica. */
+  async registrarEmpresa(dados: EmpresaRegistro): Promise<User> {
+    const res = await apiFetch<{ accessToken: string; tokenType: string; user: BackendUser }>(
+      '/empresas',
+      { method: 'POST', body: dados, auth: false },
+    )
+    setToken(res.accessToken)
+    return mapUser(res.user)
   },
 
   /** Não existe endpoint de buscar usuário por id arbitrário no backend real

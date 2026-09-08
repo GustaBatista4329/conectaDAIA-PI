@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { Mail, Lock, Eye, EyeOff, ShieldCheck, Landmark } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -44,11 +44,6 @@ export default function Login() {
           : '/admin/painel',
       { replace: true },
     )
-  }
-
-  const fillFake = (e: string) => {
-    setEmail(e)
-    setSenha('123456')
   }
 
   return (
@@ -137,7 +132,11 @@ export default function Login() {
 
             {error && (
               <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-3 py-2">
-                {error}
+                {error}. Ainda não tem conta?{' '}
+                <Link to="/registro" className="font-semibold underline">
+                  Cadastre-se
+                </Link>
+                .
               </div>
             )}
 
@@ -160,31 +159,15 @@ export default function Login() {
             </Button>
           </form>
 
-          {/* Credenciais de teste */}
-          <div className="mt-8 rounded-lg border border-dashed bg-muted/30 p-4">
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-              Credenciais de teste (senha: 123456)
-            </div>
-            <div className="grid grid-cols-1 gap-2 text-sm">
-              {[
-                { email: 'candidato@daia.com', role: 'Candidato (Anderson)' },
-                { email: 'recrutador@daia.com', role: 'Recrutador (Maria)' },
-                { email: 'admin@daia.com', role: 'Administrador' },
-              ].map((c) => (
-                <button
-                  key={c.email}
-                  type="button"
-                  onClick={() => fillFake(c.email)}
-                  className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-accent transition-colors text-left"
-                >
-                  <span className="font-mono text-xs text-foreground">{c.email}</span>
-                  <span className="text-xs text-muted-foreground">{c.role}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+          <p className="text-center text-sm text-muted-foreground mt-8">
+            Se não tem conta,{' '}
+            <Link to="/registro" className="font-semibold text-daia-blue-mid hover:underline">
+              registre-se aqui
+            </Link>
+            .
+          </p>
 
-          <p className="text-center text-xs text-muted-foreground mt-6">
+          <p className="text-center text-xs text-muted-foreground mt-4">
             Acesso restrito a colaboradores autorizados do Polo DAIA.
           </p>
         </div>

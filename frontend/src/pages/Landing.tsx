@@ -63,7 +63,7 @@ export default function Landing() {
               size="lg"
               variant="outline"
               className="bg-white/10 text-white border-white/30 hover:bg-white/20 hover:text-white"
-              onClick={() => nav('/login?action=anunciar')}
+              onClick={() => nav('/registro?perfil=empresa')}
             >
               Quero Contratar
               <Users className="h-4 w-4" />
@@ -176,7 +176,7 @@ export default function Landing() {
               </p>
               <Button
                 className="mt-6 bg-white text-daia-blue hover:bg-white/90"
-                onClick={() => nav('/login?action=anunciar')}
+                onClick={() => nav('/registro?perfil=empresa')}
               >
                 Anunciar Vagas Agora
               </Button>

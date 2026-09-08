@@ -16,12 +16,6 @@ export interface User {
   empresaId?: string
 }
 
-export interface Credencial {
-  email: string
-  senha: string
-  userId: string
-}
-
 // ============================================================
 // Candidato
 // ============================================================
@@ -139,19 +133,4 @@ export interface MetricasPlataforma {
   empresasValidadas: number
   tempoMedioContratacao: number // em dias
   denunciasPendentes: number
-}
-
-// ============================================================
-// Mock DB shape (carregado do JSON)
-// ============================================================
-export interface MockDatabase {
-  usuarios: User[]
-  credenciais: Credencial[]
-  candidatos: Candidato[]
-  empresas: Empresa[]
-  vagas: Vaga[]
-  candidaturas: Candidatura[]
-  denuncias: Denuncia[]
-  logsAuditoria: LogAuditoria[]
-  metricas: MetricasPlataforma
 }

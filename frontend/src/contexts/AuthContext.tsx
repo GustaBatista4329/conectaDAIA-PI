@@ -1,11 +1,16 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import { apiAuth } from '@/lib/api'
+import { apiAuth, CandidatoRegistro, EmpresaRegistro } from '@/lib/api'
+import { ApiError } from '@/lib/http'
 import type { User } from '@/types'
+
+type AuthResult = { ok: boolean; error?: string }
 
 interface AuthContextValue {
   user: User | null
   loading: boolean
-  login: (email: string, senha: string) => Promise<{ ok: boolean; error?: string }>
+  login: (email: string, senha: string) => Promise<AuthResult>
+  registerCandidato: (dados: CandidatoRegistro) => Promise<AuthResult>
+  registerEmpresa: (dados: EmpresaRegistro) => Promise<AuthResult>
   logout: () => void
 }
 
@@ -15,6 +20,11 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 // pra decidir o redirect por role logo após autenticar. O token JWT em si
 // (fonte real da sessão) é gerenciado por lib/http.ts.
 const STORAGE_KEY = 'conectadaia.user'
+
+function extrairMensagemErro(e: unknown): string {
+  if (e instanceof ApiError) return e.message
+  return 'Não foi possível concluir o cadastro.'
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -42,6 +52,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const registerCandidato = async (dados: CandidatoRegistro) => {
+    try {
+      const u = await apiAuth.registrarCandidato(dados)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(u))
+      setUser(u)
+      return { ok: true }
+    } catch (e) {
+      return { ok: false, error: extrairMensagemErro(e) }
+    }
+  }
+
+  const registerEmpresa = async (dados: EmpresaRegistro) => {
+    try {
+      const u = await apiAuth.registrarEmpresa(dados)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(u))
+      setUser(u)
+      return { ok: true }
+    } catch (e) {
+      return { ok: false, error: extrairMensagemErro(e) }
+    }
+  }
+
   const logout = () => {
     apiAuth.logout()
     localStorage.removeItem(STORAGE_KEY)
@@ -49,7 +81,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, login, registerCandidato, registerEmpresa, logout }}
+    >
       {children}
     </AuthContext.Provider>
   )
