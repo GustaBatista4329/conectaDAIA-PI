@@ -40,9 +40,16 @@
     @apply border-border;
   }
 
+  html,
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: 'cv11', 'ss01';
+    /* Rede de segurança: nenhum elemento deveria forçar scroll horizontal
+       da página, mas com tantas telas ainda sem breakpoint mobile isso
+       acontecia — melhor cortar o overflow aqui do que deixar a página
+       inteira rolar de lado num celular. */
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   /* Scrollbar suave */

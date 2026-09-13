@@ -46,19 +46,19 @@ export default function RecruiterDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-daia-blue">Métricas Operacionais</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-daia-blue">Métricas Operacionais</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Telemetria de recrutamento em tempo real para o Distrito Industrial de Anápolis.
           </p>
         </div>
-        <div className="text-right">
+        <div className="text-left sm:text-right">
           <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             Status do Sistema
           </div>
           <div className="mt-1 inline-flex items-center gap-2 text-sm font-semibold text-daia-green">
-            <span className="h-2 w-2 bg-daia-green rounded-full animate-pulse" />
+            <span className="h-2 w-2 bg-daia-green rounded-full animate-pulse shrink-0" />
             Uplink Setor 3 Ativo
           </div>
         </div>
@@ -88,9 +88,9 @@ export default function RecruiterDashboard() {
       </div>
 
       {/* Filtros + Talentos + Pipeline */}
-      <div className="grid md:grid-cols-4 gap-4">
+      <div className="grid gap-4 lg:grid-cols-4">
         {/* Filtros */}
-        <Card className="p-5 md:row-span-2">
+        <Card className="p-5 lg:row-span-2">
           <h3 className="font-semibold text-daia-blue">Filtros de Talentos</h3>
 
           <div className="mt-5">
@@ -130,15 +130,15 @@ export default function RecruiterDashboard() {
         </Card>
 
         {/* Top Candidatos */}
-        <div className="md:col-span-3 space-y-4">
-          <div className="flex items-center gap-6 border-b border-border">
+        <div className="lg:col-span-3 space-y-4">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-1 border-b border-border">
             <button className="pb-2 text-sm font-semibold text-daia-blue-mid border-b-2 border-daia-blue-mid">
               Melhores Combinações
             </button>
             <button className="pb-2 text-sm text-muted-foreground hover:text-foreground">
               Atividade Recente
             </button>
-            <div className="ml-auto text-xs text-muted-foreground pb-2">Mostrando 48 Candidatos</div>
+            <div className="sm:ml-auto text-xs text-muted-foreground pb-2">Mostrando 48 Candidatos</div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
@@ -182,8 +182,8 @@ export default function RecruiterDashboard() {
         </div>
 
         {/* Pipeline */}
-        <Card className="p-5 md:col-span-3">
-          <div className="flex items-center justify-between mb-4">
+        <Card className="p-5 lg:col-span-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
             <h3 className="font-semibold text-daia-blue">Velocidade do Pipeline: Químico Farmacêutico</h3>
             <Badge variant="info" className="font-semibold">
               BUSCA ATIVA
@@ -194,7 +194,7 @@ export default function RecruiterDashboard() {
             <div className="h-full bg-daia-blue-mid" style={{ width: '70%' }} />
           </div>
 
-          <div className="grid grid-cols-4 gap-4 text-center">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
             {[
               { label: 'Triagem', count: 24, unit: 'Candidatos' },
               { label: 'Entrevista', count: 8, unit: 'Candidatos' },
@@ -211,13 +211,14 @@ export default function RecruiterDashboard() {
           </div>
 
           {vagaAtiva && (
-            <div className="mt-5 pt-4 border-t flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">
+            <div className="mt-5 pt-4 border-t flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs text-muted-foreground truncate min-w-0">
                 Vaga exemplo: {vagaAtiva.titulo}
               </span>
               <Button
                 variant="outline"
                 size="sm"
+                className="shrink-0"
                 onClick={() => nav(`/recrutador/vagas/${vagaAtiva.id}/candidatos`)}
               >
                 Abrir Kanban <ChevronRight className="h-3.5 w-3.5" />

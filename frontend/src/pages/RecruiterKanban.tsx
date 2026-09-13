@@ -131,14 +131,16 @@ export default function RecruiterKanban() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => exportar('pdf')}>
             <Download className="h-4 w-4" />
-            Exportar PDF
+            <span className="hidden sm:inline">Exportar PDF</span>
+            <span className="sm:hidden">PDF</span>
           </Button>
           <Button variant="outline" size="sm" onClick={() => exportar('csv')}>
             <Download className="h-4 w-4" />
-            Exportar CSV
+            <span className="hidden sm:inline">Exportar CSV</span>
+            <span className="sm:hidden">CSV</span>
           </Button>
           <Button variant="outline" size="sm" onClick={() => show('Editor em construção.', 'info')}>
             <Edit3 className="h-4 w-4" />
@@ -147,10 +149,14 @@ export default function RecruiterKanban() {
         </div>
       </div>
 
-      {/* Kanban */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 min-w-full">
+      {/* Kanban — rola na horizontal no celular/tablet (colunas com largura
+         fixa) em vez de empilhar 4 colunas inteiras uma embaixo da outra. */}
+      <div className="flex lg:grid lg:grid-cols-4 gap-4 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
         {colunas.map((col) => (
-          <div key={col.key} className="bg-muted/40 rounded-lg p-3 min-h-[400px]">
+          <div
+            key={col.key}
+            className="w-72 shrink-0 lg:w-auto lg:shrink bg-muted/40 rounded-lg p-3 min-h-[400px]"
+          >
             <div className="flex items-center justify-between mb-3 px-1">
               <h3 className="font-semibold text-sm text-foreground">{col.label}</h3>
               <span className="text-xs text-muted-foreground font-semibold">
@@ -185,7 +191,7 @@ export default function RecruiterKanban() {
                     {cand.candidato?.skills.slice(0, 3).map((s) => (
                       <Badge
                         key={s.id}
-                        variant={s.categoria === 'normas-seguranca' ? 'success' : 'secondary'}
+                        variant={s.categoria === 'normas_seguranca' ? 'success' : 'secondary'}
                         className="text-[10px]"
                       >
                         {s.nome.toUpperCase()}

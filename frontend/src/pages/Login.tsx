@@ -1,6 +1,6 @@
 import { FormEvent, useState } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
-import { Mail, Lock, Eye, EyeOff, ShieldCheck, Landmark } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, ShieldCheck, Landmark, ArrowLeft } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -73,7 +73,15 @@ export default function Login() {
       </div>
 
       {/* Painel direito - form */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-8 relative">
+        <Link
+          to="/"
+          className="absolute top-6 left-6 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Voltar ao início
+        </Link>
+
         <div className="w-full max-w-md">
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-daia-blue">Autenticação</h2>

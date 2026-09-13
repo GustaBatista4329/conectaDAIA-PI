@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check, Eye, Calendar as CalendarIcon, ChevronRight, FileText, Zap, MapPin, Wrench } from 'lucide-react'
+import { Check, Eye, Calendar as CalendarIcon, ChevronRight, Zap, MapPin, Wrench } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -9,6 +9,18 @@ import { useToast } from '@/components/ui/toast'
 import { apiCandidatos, apiVagas, apiCandidaturas } from '@/lib/api'
 import type { Candidato, Vaga, Candidatura } from '@/types'
 import { formatDate } from '@/lib/utils'
+import daiaTrafegoPlaceholder from '@/assets/daia_trafego.png'
+
+// Tráfego ao vivo (TomTom) desativado por ora. O componente continua pronto
+// no código — pra reativar, basta virar essa flag pra `true` de novo (o
+// import lazy abaixo e o card mais abaixo já cuidam do resto).
+const LIVE_TRAFFIC_ENABLED = false
+
+// SDK do TomTom é pesado (~1MB) — carrega só quando esse card entra em tela,
+// em vez de inflar o bundle principal pra quem nunca abre o painel do candidato.
+const DaiaTrafficMap = lazy(() =>
+  import('@/components/shared/DaiaTrafficMap').then((m) => ({ default: m.DaiaTrafficMap })),
+)
 
 const statusOrder: Array<{ key: Candidatura['status']; label: string; icon: any }> = [
   { key: 'triagem', label: 'CANDIDATADO', icon: Check },
@@ -38,7 +50,7 @@ export default function CandidateDashboard() {
       )
       const sorted = withMatch.sort((a, b) => b.matchPercentual - a.matchPercentual)
       setMatches(sorted.slice(0, 2))
-      setQuickJobs(todas.filter((v) => v.tipoContrato === 'Urgent Hire').slice(0, 3))
+      setQuickJobs(todas.filter((v) => v.tipoContrato === 'Contratação Urgente').slice(0, 3))
     })
   }, [user])
 
@@ -216,21 +228,34 @@ export default function CandidateDashboard() {
       {/* Tráfego setorial */}
       <Card className="p-0 overflow-hidden">
         <div className="relative aspect-[16/6] bg-muted">
-          <img
-            src="https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=1400&q=60"
-            className="absolute inset-0 w-full h-full object-cover opacity-60"
-            alt="Tráfego"
-          />
-          <div className="absolute inset-0 bg-daia-blue/40" />
-          <div className="absolute inset-0 flex items-center justify-between px-8 text-white">
+          {LIVE_TRAFFIC_ENABLED ? (
+            <Suspense fallback={<div className="absolute inset-0 animate-pulse bg-muted" />}>
+              <DaiaTrafficMap className="absolute inset-0 h-full w-full" />
+            </Suspense>
+          ) : (
+            // Placeholder enquanto o tráfego ao vivo está desativado: mostra o
+            // último snapshot do mapa da região do DAIA em vez do mapa interativo.
+            <img
+              src={daiaTrafegoPlaceholder}
+              alt="Prévia estática do mapa da região do DAIA"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          )}
+          <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between bg-gradient-to-b from-daia-blue/70 to-transparent px-8 py-4 text-white">
             <div>
-              <div className="text-xs uppercase tracking-widest text-white/70">Tráfego Setorial ao Vivo</div>
+              <div className="text-xs uppercase tracking-widest text-white/70">
+                {LIVE_TRAFFIC_ENABLED ? 'Tráfego Setorial ao Vivo' : 'Tráfego Setorial'}
+              </div>
               <div className="font-bold text-xl mt-1 inline-flex items-center gap-2">
                 <MapPin className="h-5 w-5" />
-                Portão Norte DAIA: Livre
+                DAIA
               </div>
             </div>
-            <Badge variant="success">AO VIVO</Badge>
+            {LIVE_TRAFFIC_ENABLED ? (
+              <Badge variant="success">AO VIVO</Badge>
+            ) : (
+              <Badge variant="secondary">EM BREVE</Badge>
+            )}
           </div>
         </div>
       </Card>

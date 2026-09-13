@@ -7,7 +7,7 @@ import { MetricCard } from '@/components/shared/MetricCard'
 import { useToast } from '@/components/ui/toast'
 import { apiAdmin, apiEmpresas } from '@/lib/api'
 import type { Denuncia, Empresa, LogAuditoria, MetricasPlataforma } from '@/types'
-import { formatDateTime, timeAgo } from '@/lib/utils'
+import { formatCnpj, formatDateTime, timeAgo } from '@/lib/utils'
 
 export default function AdminPanel() {
   const { show } = useToast()
@@ -158,14 +158,14 @@ export default function AdminPanel() {
             {empresas.map((e) => (
               <div
                 key={e.id}
-                className="flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/30 transition-colors"
+                className="flex flex-wrap items-center gap-4 p-4 border rounded-lg hover:bg-muted/30 transition-colors"
               >
-                <div className="h-10 w-10 rounded-md bg-daia-blue-light flex items-center justify-center text-daia-blue font-bold text-sm">
+                <div className="h-10 w-10 shrink-0 rounded-md bg-daia-blue-light flex items-center justify-center text-daia-blue font-bold text-sm">
                   {e.logoInicial}
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-[10rem]">
                   <div className="font-semibold text-sm truncate">{e.nome}</div>
-                  <div className="text-xs text-muted-foreground font-mono">CNPJ: {e.cnpj}</div>
+                  <div className="text-xs text-muted-foreground font-mono">CNPJ: {formatCnpj(e.cnpj)}</div>
                 </div>
                 {statusEmpresaBadge(e.statusValidacao)}
                 {e.statusValidacao === 'divergencia_rfb' ? (

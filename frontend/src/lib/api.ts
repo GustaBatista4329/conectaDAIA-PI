@@ -14,16 +14,23 @@
  */
 
 import { apiFetch, apiFetchOrNull, clearToken, setToken, ApiError } from './http'
+import { NIVEL_NOME_PARA_CODIGO } from './vagaConstants'
 import type {
+  AreaEstudo,
+  AreaProfissional,
   Candidato,
   Candidatura,
   Certificacao,
   Denuncia,
   Empresa,
+  Experiencia,
+  Formacao,
+  LocalTrabalho,
   LogAuditoria,
   MetricasPlataforma,
   Skill,
   StatusCandidatura,
+  TipoTrabalho,
   User,
   UserRole,
   Vaga,
@@ -36,12 +43,6 @@ function roleParaFrontend(role: 'candidato' | 'empresa' | 'admin'): UserRole {
   return role === 'empresa' ? 'recrutador' : role
 }
 
-const NIVEL_NOME_PARA_CODIGO: Record<string, string> = {
-  Junior: 'junior',
-  Pleno: 'pleno',
-  Sênior: 'senior',
-  Gerência: 'gerencia',
-}
 
 // ============================================================
 // Formatos crus que o backend devolve (camelCase, mas id numérico)
@@ -65,6 +66,24 @@ interface BackendCertificacao {
   nome: string
   validada: boolean
 }
+interface BackendFormacao {
+  id: number
+  instituicao: string
+  curso: string
+  areaEstudo: string
+  dataInicio: string
+  dataFormatura: string
+}
+interface BackendExperiencia {
+  id: number
+  empresaNome: string
+  cargo: string
+  tipoTrabalho: string
+  localTrabalho: string
+  dataInicio: string
+  dataFim: string | null
+  trabalhandoAtualmente: boolean
+}
 interface BackendCandidato {
   id: number
   nome: string
@@ -76,8 +95,11 @@ interface BackendCandidato {
   anosExperiencia: number
   avatarUrl: string | null
   perfilCompleto: number
+  sobreMim: string | null
   skills: BackendSkill[]
   certificacoes: BackendCertificacao[]
+  formacoes: BackendFormacao[]
+  experiencias: BackendExperiencia[]
   curriculoUrl: string | null
   alertasAtivos: boolean
   candidaturas: number[]
@@ -88,11 +110,12 @@ interface BackendVaga {
   titulo: string
   empresaId: number
   empresaNome: string
-  setorAtuacao: string
+  areaProfissional: string
   distrito: string
+  localTrabalho: string
   nivel: string
-  salarioMin: number
-  salarioMax: number
+  salarioMin: number | null
+  salarioMax: number | null
   tipoContrato: string
   descricao: string
   habilidadesRequeridas: string[]
@@ -119,6 +142,7 @@ interface BackendEmpresa {
   statusValidacao: string
   sede: string
   logoInicial: string
+  sobreEmpresa: string | null
   totalVagasAtivas: number
 }
 interface BackendDenuncia {
@@ -160,6 +184,30 @@ function mapCertificacao(c: BackendCertificacao): Certificacao {
   return { id: String(c.id), nome: c.nome, validada: c.validada }
 }
 
+function mapFormacao(f: BackendFormacao): Formacao {
+  return {
+    id: String(f.id),
+    instituicao: f.instituicao,
+    curso: f.curso,
+    areaEstudo: f.areaEstudo as AreaEstudo,
+    dataInicio: f.dataInicio,
+    dataFormatura: f.dataFormatura,
+  }
+}
+
+function mapExperiencia(e: BackendExperiencia): Experiencia {
+  return {
+    id: String(e.id),
+    empresaNome: e.empresaNome,
+    cargo: e.cargo,
+    tipoTrabalho: e.tipoTrabalho as TipoTrabalho,
+    localTrabalho: e.localTrabalho as LocalTrabalho,
+    dataInicio: e.dataInicio,
+    dataFim: e.dataFim ?? undefined,
+    trabalhandoAtualmente: e.trabalhandoAtualmente,
+  }
+}
+
 function mapCandidato(c: BackendCandidato): Candidato {
   return {
     id: String(c.id),
@@ -172,8 +220,11 @@ function mapCandidato(c: BackendCandidato): Candidato {
     anosExperiencia: c.anosExperiencia,
     avatarUrl: c.avatarUrl ?? undefined,
     perfilCompleto: c.perfilCompleto,
+    sobreMim: c.sobreMim ?? undefined,
     skills: c.skills.map(mapSkill),
     certificacoes: c.certificacoes.map(mapCertificacao),
+    formacoes: c.formacoes.map(mapFormacao),
+    experiencias: c.experiencias.map(mapExperiencia),
     curriculoUrl: c.curriculoUrl ?? undefined,
     alertasAtivos: c.alertasAtivos,
     candidaturas: c.candidaturas.map(String),
@@ -187,11 +238,12 @@ function mapVaga(v: BackendVaga): Vaga {
     titulo: v.titulo,
     empresaId: String(v.empresaId),
     empresaNome: v.empresaNome,
-    setorAtuacao: v.setorAtuacao,
+    areaProfissional: v.areaProfissional as AreaProfissional,
     distrito: v.distrito,
+    localTrabalho: v.localTrabalho as LocalTrabalho,
     nivel: v.nivel as Vaga['nivel'],
-    salarioMin: v.salarioMin,
-    salarioMax: v.salarioMax,
+    salarioMin: v.salarioMin ?? undefined,
+    salarioMax: v.salarioMax ?? undefined,
     tipoContrato: v.tipoContrato as Vaga['tipoContrato'],
     descricao: v.descricao,
     habilidadesRequeridas: v.habilidadesRequeridas,
@@ -224,6 +276,7 @@ function mapEmpresa(e: BackendEmpresa): Empresa {
     statusValidacao: e.statusValidacao as Empresa['statusValidacao'],
     sede: e.sede,
     logoInicial: e.logoInicial,
+    sobreEmpresa: e.sobreEmpresa ?? undefined,
     totalVagasAtivas: e.totalVagasAtivas,
   }
 }
@@ -320,6 +373,15 @@ export const apiAuth = {
   logout(): void {
     clearToken()
   },
+
+  /** Atualiza dados de identidade do usuário logado (hoje, só `nome`). */
+  async atualizarPerfil(patch: { nome?: string }): Promise<User | null> {
+    const u = await apiFetchOrNull<BackendUser>('/auth/me', {
+      method: 'PATCH',
+      body: { nome: patch.nome },
+    })
+    return u ? mapUser(u) : null
+  },
 }
 
 // ============================================================
@@ -327,8 +389,9 @@ export const apiAuth = {
 // ============================================================
 export interface VagaFiltros {
   termo?: string
-  setor?: string
+  areaProfissional?: AreaProfissional
   distrito?: string
+  localTrabalho?: LocalTrabalho
   nivel?: string
   salarioMin?: number
   salarioMax?: number
@@ -338,8 +401,9 @@ export interface VagaFiltros {
 function filtrosParaQueryString(filtros: VagaFiltros, extras: Record<string, string> = {}): string {
   const params = new URLSearchParams(extras)
   if (filtros.termo) params.set('termo', filtros.termo)
-  if (filtros.setor) params.set('setor', filtros.setor)
+  if (filtros.areaProfissional) params.set('areaProfissional', filtros.areaProfissional)
   if (filtros.distrito) params.set('distrito', filtros.distrito)
+  if (filtros.localTrabalho) params.set('localTrabalho', filtros.localTrabalho)
   if (filtros.nivel) params.set('nivel', NIVEL_NOME_PARA_CODIGO[filtros.nivel] ?? filtros.nivel)
   if (typeof filtros.salarioMin === 'number') params.set('salarioMin', String(filtros.salarioMin))
   if (typeof filtros.salarioMax === 'number') params.set('salarioMax', String(filtros.salarioMax))
@@ -379,6 +443,26 @@ export const apiVagas = {
     const v = await apiFetchOrNull<BackendVaga>(`/vagas/${id}/desativar`, { method: 'PATCH' })
     return v !== null
   },
+
+  /** `nivel`/`tipoContrato` aqui já são o `codigo` do cadastro (ex: "senior",
+   * "full_time"), não o nome de exibição — igual ao que o backend espera.
+   * `empresaId` não entra no corpo: o backend usa a empresa do próprio token. */
+  async criar(dados: {
+    titulo: string
+    areaProfissional: AreaProfissional
+    distrito: string
+    localTrabalho: LocalTrabalho
+    nivel: string
+    /** Ambos ausentes = vaga "salário a combinar" (não é obrigatório). */
+    salarioMin?: number
+    salarioMax?: number
+    tipoContrato: string
+    descricao: string
+    habilidadesRequeridas: string[]
+  }): Promise<Vaga> {
+    const v = await apiFetch<BackendVaga>('/vagas', { method: 'POST', body: dados })
+    return mapVaga(v)
+  },
 }
 
 // ============================================================
@@ -397,6 +481,7 @@ export const apiCandidatos = {
     if (patch.setorAtuacao !== undefined) body.setorAtuacao = patch.setorAtuacao
     if (patch.localidade !== undefined) body.localidade = patch.localidade
     if (patch.anosExperiencia !== undefined) body.anosExperiencia = patch.anosExperiencia
+    if (patch.sobreMim !== undefined) body.sobreMim = patch.sobreMim
     if (patch.curriculoUrl !== undefined) body.curriculoUrl = patch.curriculoUrl
     if (patch.alertasAtivos !== undefined) body.alertasAtivos = patch.alertasAtivos
 
@@ -418,6 +503,52 @@ export const apiCandidatos = {
     })
     return c ? mapCandidato(c) : null
   },
+
+  async adicionarFormacao(
+    candidatoId: string,
+    dados: { instituicao: string; curso: string; areaEstudo: AreaEstudo; dataInicio: string; dataFormatura: string },
+  ): Promise<Candidato | null> {
+    const c = await apiFetchOrNull<BackendCandidato>(`/candidatos/${candidatoId}/formacoes`, {
+      method: 'POST',
+      body: dados,
+    })
+    return c ? mapCandidato(c) : null
+  },
+
+  async removerFormacao(candidatoId: string, formacaoId: string): Promise<Candidato | null> {
+    const c = await apiFetchOrNull<BackendCandidato>(
+      `/candidatos/${candidatoId}/formacoes/${formacaoId}`,
+      { method: 'DELETE' },
+    )
+    return c ? mapCandidato(c) : null
+  },
+
+  async adicionarExperiencia(
+    candidatoId: string,
+    dados: {
+      empresaNome: string
+      cargo: string
+      tipoTrabalho: TipoTrabalho
+      localTrabalho: LocalTrabalho
+      dataInicio: string
+      dataFim?: string
+      trabalhandoAtualmente: boolean
+    },
+  ): Promise<Candidato | null> {
+    const c = await apiFetchOrNull<BackendCandidato>(`/candidatos/${candidatoId}/experiencias`, {
+      method: 'POST',
+      body: dados,
+    })
+    return c ? mapCandidato(c) : null
+  },
+
+  async removerExperiencia(candidatoId: string, experienciaId: string): Promise<Candidato | null> {
+    const c = await apiFetchOrNull<BackendCandidato>(
+      `/candidatos/${candidatoId}/experiencias/${experienciaId}`,
+      { method: 'DELETE' },
+    )
+    return c ? mapCandidato(c) : null
+  },
 }
 
 // ============================================================
@@ -427,6 +558,23 @@ export const apiEmpresas = {
   async listar(): Promise<Empresa[]> {
     const es = await apiFetch<BackendEmpresa[]>('/empresas')
     return es.map(mapEmpresa)
+  },
+  async obter(id: string): Promise<Empresa | null> {
+    const e = await apiFetchOrNull<BackendEmpresa>(`/empresas/${id}`)
+    return e ? mapEmpresa(e) : null
+  },
+  async atualizar(
+    id: string,
+    patch: Partial<Pick<Empresa, 'nome' | 'setor' | 'sede' | 'sobreEmpresa'>>,
+  ): Promise<Empresa | null> {
+    const body: Record<string, unknown> = {}
+    if (patch.nome !== undefined) body.nome = patch.nome
+    if (patch.setor !== undefined) body.setor = patch.setor
+    if (patch.sede !== undefined) body.sede = patch.sede
+    if (patch.sobreEmpresa !== undefined) body.sobreEmpresa = patch.sobreEmpresa
+
+    const e = await apiFetchOrNull<BackendEmpresa>(`/empresas/${id}`, { method: 'PATCH', body })
+    return e ? mapEmpresa(e) : null
   },
   async validar(id: string): Promise<Empresa | null> {
     const e = await apiFetchOrNull<BackendEmpresa>(`/empresas/${id}/validar`, { method: 'PATCH' })

@@ -1,13 +1,13 @@
 import { FormEvent, useState } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
-import { Mail, Lock, Eye, EyeOff, User as UserIcon, Briefcase, Building2, ShieldCheck } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, User as UserIcon, Briefcase, Building2, ShieldCheck, ArrowLeft } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/components/ui/toast'
-import { cn } from '@/lib/utils'
+import { cn, formatCnpj } from '@/lib/utils'
 
 type Perfil = 'candidato' | 'empresa'
 
@@ -116,7 +116,15 @@ export default function Register() {
       </div>
 
       {/* Painel direito - form */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-8 relative">
+        <Link
+          to="/"
+          className="absolute top-6 left-6 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Voltar ao início
+        </Link>
+
         <div className="w-full max-w-md">
           <div className="mb-6">
             <h2 className="text-3xl font-bold text-daia-blue">Criar Conta</h2>
@@ -188,7 +196,7 @@ export default function Register() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <Label htmlFor="senha">Senha</Label>
                 <div className="mt-1.5 relative">
@@ -250,7 +258,7 @@ export default function Register() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <Label htmlFor="nivel">Nível</Label>
                     <div className="mt-1.5">
@@ -277,7 +285,7 @@ export default function Register() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <Label htmlFor="setorAtuacao">Setor de atuação</Label>
                     <Input
@@ -313,15 +321,16 @@ export default function Register() {
                       placeholder="00.000.000/0000-00"
                       className="pl-10"
                       value={cnpj}
-                      onChange={(e) => setCnpj(e.target.value)}
-                      minLength={14}
+                      onChange={(e) => setCnpj(formatCnpj(e.target.value))}
+                      inputMode="numeric"
+                      minLength={18}
                       maxLength={18}
                       required
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <Label htmlFor="setor">Setor</Label>
                     <Input

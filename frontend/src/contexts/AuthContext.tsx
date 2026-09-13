@@ -11,6 +11,7 @@ interface AuthContextValue {
   login: (email: string, senha: string) => Promise<AuthResult>
   registerCandidato: (dados: CandidatoRegistro) => Promise<AuthResult>
   registerEmpresa: (dados: EmpresaRegistro) => Promise<AuthResult>
+  atualizarNome: (nome: string) => Promise<AuthResult>
   logout: () => void
 }
 
@@ -21,9 +22,9 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 // (fonte real da sessão) é gerenciado por lib/http.ts.
 const STORAGE_KEY = 'conectadaia.user'
 
-function extrairMensagemErro(e: unknown): string {
+function extrairMensagemErro(e: unknown, fallback = 'Não foi possível concluir o cadastro.'): string {
   if (e instanceof ApiError) return e.message
-  return 'Não foi possível concluir o cadastro.'
+  return fallback
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -80,9 +81,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
   }
 
+  const atualizarNome = async (nome: string) => {
+    try {
+      const u = await apiAuth.atualizarPerfil({ nome })
+      if (!u) return { ok: false, error: 'Não foi possível atualizar o nome.' }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(u))
+      setUser(u)
+      return { ok: true }
+    } catch (e) {
+      return { ok: false, error: extrairMensagemErro(e, 'Não foi possível atualizar o nome.') }
+    }
+  }
+
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, registerCandidato, registerEmpresa, logout }}
+      value={{ user, loading, login, registerCandidato, registerEmpresa, atualizarNome, logout }}
     >
       {children}
     </AuthContext.Provider>

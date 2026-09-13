@@ -2,21 +2,25 @@ import { useEffect, useMemo, useState } from 'react'
 import { Search, MapPin, Map, List } from 'lucide-react'
 import { PublicNavbar } from '@/components/layout/PublicNavbar'
 import { PublicFooter } from '@/components/layout/PublicFooter'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Card } from '@/components/ui/card'
 import { JobCard } from '@/components/shared/JobCard'
 import { Select } from '@/components/ui/select'
+import { Combobox } from '@/components/ui/combobox'
 import { apiVagas, apiCandidaturas, VagaFiltros } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/components/ui/toast'
-import type { Vaga } from '@/types'
+import type { AreaProfissional, LocalTrabalho, Vaga } from '@/types'
 import { useNavigate } from 'react-router-dom'
-
-const setores = ['Farmacêutico', 'Logística', 'Alimentos', 'Química']
-const niveis: Array<Vaga['nivel']> = ['Junior', 'Pleno', 'Sênior', 'Gerência']
-const distritos = ['DAIA Sector 1', 'DAIA Sector 2', 'DAIA Sector 3', 'DAIA Sector 4', 'DAIA Industrial']
+import {
+  AREAS_PROFISSIONAIS_OPTIONS,
+  DISTRITOS as distritos,
+  LOCAIS_TRABALHO,
+  LOCAL_TRABALHO_LABELS,
+  NIVEIS as niveis,
+} from '@/lib/vagaConstants'
 
 export default function JobSearch() {
   const { user } = useAuth()
@@ -24,10 +28,11 @@ export default function JobSearch() {
   const nav = useNavigate()
 
   const [termo, setTermo] = useState('')
-  const [filtroSetores, setFiltroSetores] = useState<string[]>([]) // vazio = busca todos os setores
+  const [areaProfissional, setAreaProfissional] = useState<AreaProfissional | ''>('') // vazio = todas as áreas
   const [faixa, setFaixa] = useState<[number, number]>([0, 50000])
   const [filtroNiveis, setFiltroNiveis] = useState<string[]>([]) // vazio = busca todos os níveis
   const [distrito, setDistrito] = useState<string>('')
+  const [localTrabalho, setLocalTrabalho] = useState<LocalTrabalho | ''>('')
   const [view, setView] = useState<'list' | 'map'>('list')
 
   const [vagas, setVagas] = useState<Vaga[]>([])
@@ -37,13 +42,14 @@ export default function JobSearch() {
   const filtros: VagaFiltros = useMemo(
     () => ({
       termo: termo || undefined,
-      setor: filtroSetores.length === 1 ? filtroSetores[0] : undefined,
+      areaProfissional: areaProfissional || undefined,
       nivel: filtroNiveis.length === 1 ? filtroNiveis[0] : undefined,
       distrito: distrito || undefined,
+      localTrabalho: localTrabalho || undefined,
       salarioMin: faixa[0],
       salarioMax: faixa[1],
     }),
-    [termo, filtroSetores, filtroNiveis, distrito, faixa],
+    [termo, areaProfissional, filtroNiveis, distrito, localTrabalho, faixa],
   )
 
   useEffect(() => {
@@ -51,13 +57,11 @@ export default function JobSearch() {
     apiVagas.listar(filtros).then((r) => {
       // aplica filtro multi-select em memória (a API só filtra 1 por campo)
       let result = r
-      if (filtroSetores.length > 1)
-        result = result.filter((v) => filtroSetores.includes(v.setorAtuacao))
       if (filtroNiveis.length > 1) result = result.filter((v) => filtroNiveis.includes(v.nivel))
       setVagas(result)
       setLoading(false)
     })
-  }, [filtros, filtroSetores, filtroNiveis])
+  }, [filtros, filtroNiveis])
 
   useEffect(() => {
     if (user?.candidatoId) {
@@ -66,9 +70,6 @@ export default function JobSearch() {
         .then((cs) => setCandidaturasUsuario(cs.map((c) => c.vagaId)))
     }
   }, [user])
-
-  const toggleSetor = (s: string) =>
-    setFiltroSetores((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]))
 
   const toggleNivel = (n: string) =>
     setFiltroNiveis((prev) => (prev.includes(n) ? prev.filter((x) => x !== n) : [...prev, n]))
@@ -109,31 +110,29 @@ export default function JobSearch() {
     handleApply(vagas[0])
   }
 
-  return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <PublicNavbar />
-
-      <div className="mx-auto max-w-7xl px-6 py-10 w-full flex gap-6">
-        {/* Sidebar filtros */}
-        <aside className="w-64 shrink-0 space-y-6">
+  // Candidatos logados navegam até aqui pela sidebar do painel (link "Buscar
+  // Vagas"). Como essa rota também é pública (visitantes sem login podem
+  // buscar vagas), o layout muda conforme o contexto: dentro do painel do
+  // candidato para quem está logado, e com o cabeçalho público para visitantes
+  // — assim a sidebar não some ao clicar em "Buscar Vagas".
+  const content = (
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6 sm:py-10 w-full flex flex-col lg:flex-row gap-6">
+      {/* Sidebar filtros */}
+      <aside className="w-full lg:w-64 shrink-0 space-y-6">
           <h2 className="font-bold text-daia-blue">Filtros de Busca</h2>
 
-          {/* Setor */}
+          {/* Área profissional */}
           <div>
             <div className="text-xs font-semibold tracking-wider uppercase text-muted-foreground mb-3">
-              Setor Industrial
+              Área Profissional
             </div>
-            <div className="space-y-2">
-              {setores.map((s) => (
-                <label key={s} className="flex items-center gap-2 cursor-pointer text-sm">
-                  <Checkbox
-                    checked={filtroSetores.includes(s)}
-                    onCheckedChange={() => toggleSetor(s)}
-                  />
-                  {s}
-                </label>
-              ))}
-            </div>
+            <Combobox
+              options={[{ value: '', label: 'Todas as Áreas' }, ...AREAS_PROFISSIONAIS_OPTIONS]}
+              value={areaProfissional}
+              onChange={(v) => setAreaProfissional(v as AreaProfissional | '')}
+              placeholder="Todas as Áreas"
+              searchPlaceholder="Buscar área..."
+            />
           </div>
 
           {/* Faixa salarial */}
@@ -187,6 +186,31 @@ export default function JobSearch() {
             </div>
           </div>
 
+          {/* Modelo de trabalho */}
+          <div>
+            <div className="text-xs font-semibold tracking-wider uppercase text-muted-foreground mb-3">
+              Modelo de Trabalho
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {LOCAIS_TRABALHO.map((lt) => {
+                const active = localTrabalho === lt
+                return (
+                  <button
+                    key={lt}
+                    onClick={() => setLocalTrabalho(active ? '' : lt)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                      active
+                        ? 'bg-daia-green text-white border-daia-green'
+                        : 'bg-background border-border text-muted-foreground hover:bg-muted'
+                    }`}
+                  >
+                    {LOCAL_TRABALHO_LABELS[lt]}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
           {/* CTA bloco */}
           <Card className="p-5 gradient-daia text-white">
             <div className="font-semibold">Construa sua carreira no DAIA</div>
@@ -233,14 +257,14 @@ export default function JobSearch() {
                 ))}
               </Select>
             </div>
-            <Button size="lg" className="h-12 px-8">
+            <Button size="lg" className="h-12 px-8 w-full md:w-auto">
               <Search className="h-4 w-4" />
               Buscar Vagas
             </Button>
           </div>
 
           {/* Contadores + switch view */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Vagas abertas
@@ -257,7 +281,8 @@ export default function JobSearch() {
                 className="h-8"
               >
                 <List className="h-3.5 w-3.5" />
-                Visualização em Lista
+                <span className="hidden sm:inline">Visualização em Lista</span>
+                <span className="sm:hidden">Lista</span>
               </Button>
               <Button
                 variant={view === 'map' ? 'default' : 'ghost'}
@@ -266,7 +291,8 @@ export default function JobSearch() {
                 className="h-8"
               >
                 <Map className="h-3.5 w-3.5" />
-                Mapa do Distrito
+                <span className="hidden sm:inline">Mapa do Distrito</span>
+                <span className="sm:hidden">Mapa</span>
               </Button>
             </div>
           </div>
@@ -297,12 +323,15 @@ export default function JobSearch() {
                 alt="Mapa DAIA"
               />
               <div className="absolute inset-0 bg-daia-blue/60" />
-              <div className="absolute inset-0 flex items-end justify-between p-6 text-white">
-                <div>
+              <div className="absolute inset-0 flex flex-col sm:flex-row sm:items-end justify-between gap-3 p-4 sm:p-6 text-white">
+                <div className="min-w-0">
                   <div className="font-bold text-xl">Mapeamento DAIA</div>
                   <div className="text-sm text-white/80">Explore vagas em todo o distrito de 10.000 hectares.</div>
                 </div>
-                <Button variant="outline" className="bg-white/10 text-white border-white/30 hover:bg-white/20 hover:text-white">
+                <Button
+                  variant="outline"
+                  className="shrink-0 bg-white/10 text-white border-white/30 hover:bg-white/20 hover:text-white"
+                >
                   <Map className="h-4 w-4" />
                   Abrir Mapa Interativo
                 </Button>
@@ -310,8 +339,17 @@ export default function JobSearch() {
             </Card>
           )}
         </div>
-      </div>
+    </div>
+  )
 
+  if (user?.role === 'candidato') {
+    return <DashboardLayout>{content}</DashboardLayout>
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col bg-background">
+      <PublicNavbar />
+      {content}
       <PublicFooter />
     </div>
   )

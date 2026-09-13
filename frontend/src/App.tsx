@@ -10,7 +10,9 @@ import JobSearch from '@/pages/JobSearch'
 import CandidateDashboard from '@/pages/CandidateDashboard'
 import CandidateProfile from '@/pages/CandidateProfile'
 import RecruiterDashboard from '@/pages/RecruiterDashboard'
+import RecruiterProfile from '@/pages/RecruiterProfile'
 import RecruiterKanban from '@/pages/RecruiterKanban'
+import RecruiterVagas from '@/pages/RecruiterVagas'
 import AdminPanel from '@/pages/AdminPanel'
 import Placeholder from '@/pages/Placeholder'
 
@@ -64,15 +66,13 @@ export default function App() {
         <Route element={<ProtectedRoute allow={['recrutador']} />}>
           <Route element={<DashboardLayout />}>
             <Route path="/recrutador/painel" element={<RecruiterDashboard />} />
+            <Route path="/recrutador/perfil" element={<RecruiterProfile />} />
             <Route path="/recrutador/vagas/:vagaId/candidatos" element={<RecruiterKanban />} />
             <Route
               path="/recrutador/candidatos"
               element={<RecruiterKanban />}
             />
-            <Route
-              path="/recrutador/vagas"
-              element={<Placeholder title="Gestão de Vagas" description="Criação e edição das vagas da empresa." />}
-            />
+            <Route path="/recrutador/vagas" element={<RecruiterVagas />} />
             <Route
               path="/recrutador/empresas"
               element={<Placeholder title="Empresas Parceiras" description="Colaboração entre empresas do grupo." />}
@@ -80,6 +80,10 @@ export default function App() {
             <Route
               path="/recrutador/analytics"
               element={<Placeholder title="Analytics" description="Relatórios de performance de recrutamento." />}
+            />
+            <Route
+              path="/recrutador/configuracoes"
+              element={<Placeholder title="Configurações" description="Preferências da sua conta." />}
             />
           </Route>
         </Route>
@@ -103,6 +107,10 @@ export default function App() {
             <Route
               path="/admin/analytics"
               element={<Placeholder title="Analytics" description="Métricas estratégicas do DAIA." />}
+            />
+            <Route
+              path="/admin/configuracoes"
+              element={<Placeholder title="Configurações" description="Preferências da sua conta." />}
             />
           </Route>
         </Route>

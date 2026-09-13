@@ -8,26 +8,28 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { apiVagas } from '@/lib/api'
 import { formatCurrency } from '@/lib/utils'
+import { AREA_PROFISSIONAL_LABELS } from '@/lib/vagaConstants'
 import type { Vaga } from '@/types'
+import industriaFarmaceuticaImg from '@/assets/industria_farmaceutica.jpg'
+import logisticaImg from '@/assets/logistica_image.avif'
+import agroindustriaImg from '@/assets/agroindustria_image.avif'
+import daiaImg from '@/assets/daia_image.jpg'
 
 const setores = [
   {
     nome: 'Farmoquímico',
     descricao: 'O segundo maior hub farmoquímico da América Latina.',
-    imagem:
-      'https://images.unsplash.com/photo-1581093458791-9d42cc05b9d8?auto=format&fit=crop&w=800&q=70',
+    imagem: industriaFarmaceuticaImg,
   },
   {
     nome: 'Logística',
     descricao: 'Hubs logísticos e transportadoras intermodais conectadas ao Brasil.',
-    imagem:
-      'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=70',
+    imagem: logisticaImg,
   },
   {
     nome: 'Agroindústria',
     descricao: 'Tecnologias agroindustriais e o abastecimento do Centro-Oeste.',
-    imagem:
-      'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=800&q=70',
+    imagem: agroindustriaImg,
   },
 ]
 
@@ -45,7 +47,10 @@ export default function Landing() {
 
       {/* HERO */}
       <section className="relative gradient-daia text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-15 bg-[url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1600&q=60')] bg-cover bg-center" />
+        <div
+          className="absolute inset-0 opacity-15 bg-cover bg-center"
+          style={{ backgroundImage: `url(${daiaImg})` }}
+        />
         <div className="absolute inset-0 gradient-daia opacity-85" />
         <div className="relative mx-auto max-w-7xl px-6 pt-20 pb-24">
           <div className="text-xs font-semibold tracking-widest text-daia-yellow/90 uppercase">
@@ -71,21 +76,21 @@ export default function Landing() {
           </div>
 
           {/* KPIs */}
-          <div className="mt-16 bg-white rounded-xl shadow-xl p-6 grid grid-cols-3 gap-4 text-daia-blue max-w-3xl">
-            <div className="text-center border-r last:border-r-0">
+          <div className="mt-16 bg-white rounded-xl shadow-xl p-6 grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x gap-4 sm:gap-0 text-daia-blue max-w-3xl">
+            <div className="text-center pt-4 first:pt-0 sm:pt-0">
               <div className="text-3xl font-bold">30k+</div>
               <div className="text-xs uppercase tracking-wider text-muted-foreground mt-1">
                 Empregos Ativos
               </div>
             </div>
-            <div className="text-center border-r last:border-r-0">
+            <div className="text-center pt-4 sm:pt-0">
               <div className="text-3xl font-bold">150+</div>
               <div className="text-xs uppercase tracking-wider text-muted-foreground mt-1">
                 Empresas Instaladas
               </div>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-daia-green">Novas Obras</div>
+            <div className="text-center pt-4 sm:pt-0">
+              <div className="text-2xl sm:text-3xl font-bold text-daia-green">Novas Obras</div>
               <div className="text-xs uppercase tracking-wider text-muted-foreground mt-1">
                 Expansão do Setor 3
               </div>
@@ -116,8 +121,8 @@ export default function Landing() {
             <Card key={vaga.id} className="p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 <Briefcase className="h-3.5 w-3.5" />
-                {vaga.setorAtuacao}
-                {vaga.tipoContrato === 'Urgent Hire' && (
+                {AREA_PROFISSIONAL_LABELS[vaga.areaProfissional]}
+                {vaga.tipoContrato === 'Contratação Urgente' && (
                   <Badge variant="success" className="ml-auto">
                     CONTRATANDO
                   </Badge>
@@ -127,7 +132,9 @@ export default function Landing() {
               <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{vaga.descricao}</p>
               <div className="mt-4 pt-4 border-t flex items-center justify-between">
                 <div className="text-xs text-muted-foreground">
-                  {formatCurrency(vaga.salarioMin)} – {formatCurrency(vaga.salarioMax)}
+                  {vaga.salarioMin !== undefined && vaga.salarioMax !== undefined
+                    ? `${formatCurrency(vaga.salarioMin)} – ${formatCurrency(vaga.salarioMax)}`
+                    : 'Salário a combinar'}
                 </div>
                 <Button size="sm" variant="outline" onClick={() => nav('/vagas')}>
                   Candidatar-se

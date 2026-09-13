@@ -41,6 +41,27 @@ export function initials(nome: string): string {
     .join('')
 }
 
+/** Aplica a máscara "00.000.000/0000-00" progressivamente (uso: mask
+ * enquanto o usuário digita e/ou exibição). O valor persistido no backend
+ * não muda — a formatação é só de UI. */
+export function formatCnpj(value: string): string {
+  const digitos = value.replace(/\D/g, '').slice(0, 14)
+  const partes = [
+    digitos.slice(0, 2),
+    digitos.slice(2, 5),
+    digitos.slice(5, 8),
+    digitos.slice(8, 12),
+    digitos.slice(12, 14),
+  ]
+
+  let formatado = partes[0]
+  if (partes[1]) formatado += `.${partes[1]}`
+  if (partes[2]) formatado += `.${partes[2]}`
+  if (partes[3]) formatado += `/${partes[3]}`
+  if (partes[4]) formatado += `-${partes[4]}`
+  return formatado
+}
+
 export function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime()
   const mins = Math.floor(diff / 60000)
