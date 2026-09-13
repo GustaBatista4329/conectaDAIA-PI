@@ -53,11 +53,15 @@ class TokenResponse(CamelModel):
 
 
 class UserUpdate(CamelModel):
-    """Ainda não usado por nenhuma rota — preparado para o futuro. Todos os
-    campos opcionais (PATCH parcial: só manda o que quer mudar). Não inclui
-    `email` nem `role` — trocar e-mail de login e mudar tipo de conta não são
-    edições simples de perfil, mereceriam fluxo/validação própria depois."""
+    """Usado por PATCH /auth/me. Todos os campos opcionais (PATCH parcial: só
+    manda o que quer mudar). Não inclui `email` nem `role` — trocar e-mail de
+    login e mudar tipo de conta não são edições simples de perfil, mereceriam
+    fluxo/validação própria depois.
 
-    nome: str | None = None
+    `avatar_url` e `senha` ainda não têm rota que os utilize — trocar senha
+    precisa de confirmação da senha atual (fluxo próprio, não implementado
+    ainda), então o service ignora esse campo por enquanto."""
+
+    nome: str | None = Field(default=None, min_length=1)
     avatar_url: str | None = None
     senha: str | None = Field(default=None, min_length=8)

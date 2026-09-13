@@ -4,10 +4,11 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Numeric, String, Text, func
+from sqlalchemy import Enum as SQLEnum, ForeignKey, Numeric, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+from app.models.enums import AreaProfissional, LocalTrabalho
 
 if TYPE_CHECKING:
     from app.models.cadastros import Nivel, TipoContrato
@@ -22,11 +23,23 @@ class Vaga(Base):
     codigo: Mapped[str] = mapped_column(String, unique=True)
     titulo: Mapped[str] = mapped_column(String)
     empresa_id: Mapped[int] = mapped_column(ForeignKey("cd_empresas.empresa_id"))
-    setor_atuacao: Mapped[str] = mapped_column(String)
+    # Área profissional do CARGO em si (ex: TI, Jurídico, Operador de
+    # Máquina) — não é o setor/indústria da empresa (Empresa.setor): uma
+    # empresa farmacêutica pode ter uma vaga de advogado, por exemplo.
+    area_profissional: Mapped[AreaProfissional] = mapped_column(
+        SQLEnum(AreaProfissional, name="area_profissional")
+    )
     distrito: Mapped[str] = mapped_column(String)
+    # Modelo de trabalho (presencial/híbrido/remoto) — mesmo Enum/tipo Postgres
+    # usado por Experiencia.local_trabalho (app/models/enums.py).
+    local_trabalho: Mapped[LocalTrabalho] = mapped_column(
+        SQLEnum(LocalTrabalho, name="local_trabalho")
+    )
     nivel_id: Mapped[int] = mapped_column(ForeignKey("cd_niveis.nivel_id"))
-    salario_min: Mapped[float] = mapped_column(Numeric(10, 2))
-    salario_max: Mapped[float] = mapped_column(Numeric(10, 2))
+    # Nenhum dos dois é obrigatório — ausentes juntos = "salário a combinar"
+    # (o service/schema garante que não fica só um dos dois preenchido).
+    salario_min: Mapped[float | None] = mapped_column(Numeric(10, 2))
+    salario_max: Mapped[float | None] = mapped_column(Numeric(10, 2))
     tipo_contrato_id: Mapped[int] = mapped_column(ForeignKey("cd_tipos_contrato.tipo_contrato_id"))
     descricao: Mapped[str] = mapped_column(Text)
     ativa: Mapped[bool] = mapped_column(default=True)

@@ -1,11 +1,19 @@
-# Rotas: POST /candidatos (cadastro), GET/PATCH /candidatos/{id}, POST/DELETE skills
+# Rotas: POST /candidatos (cadastro), GET/PATCH /candidatos/{id},
+# POST/DELETE skills, POST/DELETE formacoes, POST/DELETE experiencias
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
 from app.deps import get_current_user, require_role
 from app.models.user import User
-from app.schemas.candidato import CandidatoCreate, CandidatoRead, CandidatoUpdate, SkillCreate
+from app.schemas.candidato import (
+    CandidatoCreate,
+    CandidatoRead,
+    CandidatoUpdate,
+    ExperienciaCreate,
+    FormacaoCreate,
+    SkillCreate,
+)
 from app.schemas.user import TokenResponse, UserRead
 from app.services import candidato_service
 
@@ -77,5 +85,61 @@ async def remover_skill(
     _garantir_dono(current_user, candidato_id)
     try:
         return await candidato_service.remover_skill(db, candidato_id, skill_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.post("/{candidato_id}/formacoes", response_model=CandidatoRead, status_code=201)
+async def adicionar_formacao(
+    candidato_id: int,
+    body: FormacaoCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role("candidato")),
+):
+    _garantir_dono(current_user, candidato_id)
+    try:
+        return await candidato_service.adicionar_formacao(db, candidato_id, body)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.delete("/{candidato_id}/formacoes/{formacao_id}", response_model=CandidatoRead)
+async def remover_formacao(
+    candidato_id: int,
+    formacao_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role("candidato")),
+):
+    _garantir_dono(current_user, candidato_id)
+    try:
+        return await candidato_service.remover_formacao(db, candidato_id, formacao_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.post("/{candidato_id}/experiencias", response_model=CandidatoRead, status_code=201)
+async def adicionar_experiencia(
+    candidato_id: int,
+    body: ExperienciaCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role("candidato")),
+):
+    _garantir_dono(current_user, candidato_id)
+    try:
+        return await candidato_service.adicionar_experiencia(db, candidato_id, body)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.delete("/{candidato_id}/experiencias/{experiencia_id}", response_model=CandidatoRead)
+async def remover_experiencia(
+    candidato_id: int,
+    experiencia_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role("candidato")),
+):
+    _garantir_dono(current_user, candidato_id)
+    try:
+        return await candidato_service.remover_experiencia(db, candidato_id, experiencia_id)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc

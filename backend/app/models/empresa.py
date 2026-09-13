@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -26,6 +26,7 @@ class Empresa(Base):
     )
     sede: Mapped[str] = mapped_column(String)
     logo_inicial: Mapped[str] = mapped_column(String)
+    sobre_empresa: Mapped[str | None] = mapped_column(Text)
 
     # totalVagasAtivas não é coluna — é derivado por query (ver decisão 5)
     status_validacao: Mapped[StatusValidacaoEmpresa] = relationship()

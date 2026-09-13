@@ -1,4 +1,5 @@
-# Regras: registrar, listar, validar, suspender (as duas últimas geram log de auditoria)
+# Regras: registrar, obter, atualizar, listar, validar, suspender (as duas
+# últimas geram log de auditoria)
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -9,7 +10,7 @@ from app.models.cadastros import StatusValidacaoEmpresa, TipoUsuario
 from app.models.empresa import Empresa
 from app.models.user import User
 from app.models.vaga import Vaga
-from app.schemas.empresa import EmpresaCreate, EmpresaRead
+from app.schemas.empresa import EmpresaCreate, EmpresaRead, EmpresaUpdate
 
 _OPTIONS = (selectinload(Empresa.status_validacao),)
 
@@ -68,6 +69,50 @@ async def _contar_vagas_ativas(db: AsyncSession, empresa_id: int) -> int:
         .where(Vaga.empresa_id == empresa_id, Vaga.ativa.is_(True))
     )
     return resultado.scalar_one()
+
+
+async def obter(db: AsyncSession, empresa_id: int) -> EmpresaRead | None:
+    resultado = await db.execute(
+        select(Empresa).where(Empresa.empresa_id == empresa_id).options(*_OPTIONS)
+    )
+    empresa = resultado.scalar_one_or_none()
+    if empresa is None:
+        return None
+    total = await _contar_vagas_ativas(db, empresa_id)
+    return EmpresaRead.from_model(empresa, total_vagas_ativas=total)
+
+
+async def atualizar(db: AsyncSession, empresa_id: int, dados: EmpresaUpdate) -> EmpresaRead:
+    empresa = await db.get(Empresa, empresa_id)
+    if empresa is None:
+        raise ValueError("Empresa não encontrada")
+
+    if dados.nome is not None:
+        empresa.nome = dados.nome
+        empresa.logo_inicial = dados.nome[:1].upper()
+
+        # nome da empresa é também o nome de exibição da conta (User.nome é
+        # setado a partir de EmpresaCreate.nome em registrar()) — mantém os
+        # dois em sincronia.
+        usuario_resultado = await db.execute(select(User).where(User.empresa_id == empresa_id))
+        usuario = usuario_resultado.scalar_one_or_none()
+        if usuario is not None:
+            usuario.nome = dados.nome
+
+    if dados.setor is not None:
+        empresa.setor = dados.setor
+    if dados.sede is not None:
+        empresa.sede = dados.sede
+    if dados.sobre_empresa is not None:
+        empresa.sobre_empresa = dados.sobre_empresa
+
+    await db.commit()
+
+    total = await _contar_vagas_ativas(db, empresa_id)
+    resultado = await db.execute(
+        select(Empresa).where(Empresa.empresa_id == empresa_id).options(*_OPTIONS)
+    )
+    return EmpresaRead.from_model(resultado.scalar_one(), total_vagas_ativas=total)
 
 
 async def listar(db: AsyncSession) -> list[EmpresaRead]:

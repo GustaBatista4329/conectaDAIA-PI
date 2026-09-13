@@ -43,16 +43,20 @@ async def listar(db: AsyncSession, filtros: VagaFiltros) -> list[VagaRead]:
                 Vaga.habilidades.any(VagaHabilidade.nome.ilike(termo_like)),
             )
         )
-    if filtros.setor:
-        query = query.where(Vaga.setor_atuacao == filtros.setor)
+    if filtros.area_profissional:
+        query = query.where(Vaga.area_profissional == filtros.area_profissional)
     if filtros.distrito:
         query = query.where(Vaga.distrito == filtros.distrito)
+    if filtros.local_trabalho:
+        query = query.where(Vaga.local_trabalho == filtros.local_trabalho)
     if filtros.nivel:
         query = query.where(Vaga.nivel.has(Nivel.codigo == filtros.nivel))
+    # Vaga "salário a combinar" (min/max nulos) sempre passa no filtro de
+    # faixa salarial — não dá pra saber se caberia, então não é excluída.
     if filtros.salario_min is not None:
-        query = query.where(Vaga.salario_max >= filtros.salario_min)
+        query = query.where(or_(Vaga.salario_max.is_(None), Vaga.salario_max >= filtros.salario_min))
     if filtros.salario_max is not None:
-        query = query.where(Vaga.salario_min <= filtros.salario_max)
+        query = query.where(or_(Vaga.salario_min.is_(None), Vaga.salario_min <= filtros.salario_max))
 
     resultado = await db.execute(query)
     vagas = resultado.scalars().all()
@@ -91,8 +95,9 @@ async def criar(db: AsyncSession, empresa_id: int, dados: VagaCreate) -> VagaRea
         codigo=uuid.uuid4().hex[:10],
         titulo=dados.titulo,
         empresa_id=empresa_id,
-        setor_atuacao=dados.setor_atuacao,
+        area_profissional=dados.area_profissional,
         distrito=dados.distrito,
+        local_trabalho=dados.local_trabalho,
         nivel_id=nivel.nivel_id,
         salario_min=dados.salario_min,
         salario_max=dados.salario_max,

@@ -1,19 +1,29 @@
-# Regras: registrar, obter, atualizar, adicionar_skill, remover_skill
+# Regras: registrar, obter, atualizar, adicionar_skill, remover_skill,
+# adicionar_formacao, remover_formacao, adicionar_experiencia, remover_experiencia
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.security import criar_token, hash_senha
 from app.models.cadastros import CategoriaSkill, Nivel, TipoUsuario
-from app.models.candidato import Candidato, Skill
+from app.models.candidato import Candidato, Experiencia, Formacao, Skill
 from app.models.user import User
-from app.schemas.candidato import CandidatoCreate, CandidatoRead, CandidatoUpdate, SkillCreate
+from app.schemas.candidato import (
+    CandidatoCreate,
+    CandidatoRead,
+    CandidatoUpdate,
+    ExperienciaCreate,
+    FormacaoCreate,
+    SkillCreate,
+)
 
 _OPTIONS = (
     selectinload(Candidato.usuario),
     selectinload(Candidato.nivel),
     selectinload(Candidato.skills).selectinload(Skill.categoria),
     selectinload(Candidato.certificacoes),
+    selectinload(Candidato.formacoes),
+    selectinload(Candidato.experiencias),
     selectinload(Candidato.candidaturas),
 )
 
@@ -96,6 +106,7 @@ async def atualizar(db: AsyncSession, candidato_id: int, dados: CandidatoUpdate)
         "setor_atuacao",
         "localidade",
         "anos_experiencia",
+        "sobre_mim",
         "curriculo_url",
         "alertas_ativos",
     )
@@ -143,5 +154,75 @@ async def remover_skill(db: AsyncSession, candidato_id: int, skill_id: int) -> C
         raise ValueError("Skill não encontrada")
 
     await db.delete(skill)
+    await db.commit()
+    return await _recarregar(db, candidato_id)
+
+
+async def adicionar_formacao(
+    db: AsyncSession, candidato_id: int, dados: FormacaoCreate
+) -> CandidatoRead:
+    candidato = await db.get(Candidato, candidato_id)
+    if candidato is None:
+        raise ValueError("Candidato não encontrado")
+
+    db.add(
+        Formacao(
+            candidato_id=candidato_id,
+            instituicao=dados.instituicao,
+            curso=dados.curso,
+            area_estudo=dados.area_estudo,
+            data_inicio=dados.data_inicio,
+            data_formatura=dados.data_formatura,
+        )
+    )
+    candidato.perfil_completo = min(100, candidato.perfil_completo + 5)
+    await db.commit()
+
+    return await _recarregar(db, candidato_id)
+
+
+async def remover_formacao(db: AsyncSession, candidato_id: int, formacao_id: int) -> CandidatoRead:
+    formacao = await db.get(Formacao, formacao_id)
+    if formacao is None or formacao.candidato_id != candidato_id:
+        raise ValueError("Formação não encontrada")
+
+    await db.delete(formacao)
+    await db.commit()
+    return await _recarregar(db, candidato_id)
+
+
+async def adicionar_experiencia(
+    db: AsyncSession, candidato_id: int, dados: ExperienciaCreate
+) -> CandidatoRead:
+    candidato = await db.get(Candidato, candidato_id)
+    if candidato is None:
+        raise ValueError("Candidato não encontrado")
+
+    db.add(
+        Experiencia(
+            candidato_id=candidato_id,
+            empresa_nome=dados.empresa_nome,
+            cargo=dados.cargo,
+            tipo_trabalho=dados.tipo_trabalho,
+            local_trabalho=dados.local_trabalho,
+            data_inicio=dados.data_inicio,
+            data_fim=dados.data_fim,
+            trabalhando_atualmente=dados.trabalhando_atualmente,
+        )
+    )
+    candidato.perfil_completo = min(100, candidato.perfil_completo + 5)
+    await db.commit()
+
+    return await _recarregar(db, candidato_id)
+
+
+async def remover_experiencia(
+    db: AsyncSession, candidato_id: int, experiencia_id: int
+) -> CandidatoRead:
+    experiencia = await db.get(Experiencia, experiencia_id)
+    if experiencia is None or experiencia.candidato_id != candidato_id:
+        raise ValueError("Experiência não encontrada")
+
+    await db.delete(experiencia)
     await db.commit()
     return await _recarregar(db, candidato_id)

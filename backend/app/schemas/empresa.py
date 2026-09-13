@@ -20,6 +20,17 @@ class EmpresaCreate(CamelModel):
     sede: str
 
 
+class EmpresaUpdate(CamelModel):
+    """Todos os campos opcionais (PATCH parcial). Não inclui `cnpj` — é o
+    identificador legal da empresa, atrelado ao fluxo de validação da RFB
+    (trocar exigiria re-validação, fluxo próprio não implementado ainda)."""
+
+    nome: str | None = Field(default=None, min_length=1)
+    setor: str | None = None
+    sede: str | None = None
+    sobre_empresa: str | None = Field(default=None, max_length=2000)
+
+
 class EmpresaRead(CamelModel):
     """`totalVagasAtivas` não é coluna — sempre derivado por query (decisão 5
     do docs/ESTRUTURA-BANCO-DE-DADOS.md), por isso vem como parâmetro de `from_model`."""
@@ -31,6 +42,7 @@ class EmpresaRead(CamelModel):
     status_validacao: str  # codigo (em_analise/validada/divergencia_rfb/suspensa)
     sede: str
     logo_inicial: str
+    sobre_empresa: str | None = None
     total_vagas_ativas: int
 
     @classmethod
@@ -43,5 +55,6 @@ class EmpresaRead(CamelModel):
             status_validacao=empresa.status_validacao.codigo,
             sede=empresa.sede,
             logo_inicial=empresa.logo_inicial,
+            sobre_empresa=empresa.sobre_empresa,
             total_vagas_ativas=total_vagas_ativas,
         )
