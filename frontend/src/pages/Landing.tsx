@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowRight, Briefcase, Users } from 'lucide-react'
+import { ArrowRight, Bell, Briefcase, Users } from 'lucide-react'
 import { PublicNavbar } from '@/components/layout/PublicNavbar'
 import { PublicFooter } from '@/components/layout/PublicFooter'
 import { Button } from '@/components/ui/button'
@@ -33,6 +33,34 @@ const setores = [
   },
 ]
 
+// Anel de compatibilidade usado no card flutuante do hero — mesma lógica de
+// "% de match" já exibida em badge nos cards de vaga (JobCard, painel do
+// candidato), só que em forma de anel pra reforçar o efeito de destaque
+// visual do hero. r=15.9155 faz a circunferência dar ~100, então o valor
+// (0–100) vira diretamente o strokeDasharray, sem precisar calcular 2πr.
+function MatchRing({ value }: { value: number }) {
+  return (
+    <div className="relative h-12 w-12 shrink-0">
+      <svg viewBox="0 0 36 36" className="h-12 w-12 -rotate-90">
+        <circle cx="18" cy="18" r="15.9155" fill="none" strokeWidth="3" className="stroke-daia-green-soft" />
+        <circle
+          cx="18"
+          cy="18"
+          r="15.9155"
+          fill="none"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeDasharray={`${value} 100`}
+          className="stroke-daia-green"
+        />
+      </svg>
+      <span className="absolute inset-0 flex items-center justify-center text-[11px] font-bold text-daia-green">
+        {value}%
+      </span>
+    </div>
+  )
+}
+
 export default function Landing() {
   const nav = useNavigate()
   const [destaque, setDestaque] = useState<Vaga[]>([])
@@ -53,47 +81,113 @@ export default function Landing() {
         />
         <div className="absolute inset-0 gradient-daia opacity-85" />
         <div className="relative mx-auto max-w-7xl px-6 pt-20 pb-24">
-          <div className="text-xs font-semibold tracking-widest text-daia-yellow/90 uppercase">
-            DAIA · Anápolis · Goiás
-          </div>
-          <h1 className="mt-4 text-5xl md:text-6xl font-bold leading-tight text-balance max-w-3xl">
-            Encontre seu lugar no maior polo industrial do Centro-Oeste
-          </h1>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Button size="lg" className="bg-white text-daia-blue hover:bg-white/90" onClick={() => nav('/vagas')}>
-              Quero Trabalhar
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="bg-white/10 text-white border-white/30 hover:bg-white/20 hover:text-white"
-              onClick={() => nav('/registro?perfil=empresa')}
-            >
-              Quero Contratar
-              <Users className="h-4 w-4" />
-            </Button>
-          </div>
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Coluna de texto */}
+            <div>
+              <div className="text-xs font-semibold tracking-widest text-daia-yellow/90 uppercase">
+                DAIA · Anápolis · Goiás
+              </div>
+              <h1 className="mt-4 text-5xl md:text-6xl font-bold leading-tight text-balance">
+                Encontre seu lugar no maior polo industrial do Centro-Oeste
+              </h1>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Button
+                  size="lg"
+                  className="bg-white text-daia-blue hover:bg-white/90"
+                  onClick={() => nav('/vagas')}
+                >
+                  Quero Trabalhar
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="bg-white/10 text-white border-white/30 hover:bg-white/20 hover:text-white"
+                  onClick={() => nav('/registro?perfil=empresa')}
+                >
+                  Quero Contratar
+                  <Users className="h-4 w-4" />
+                </Button>
+              </div>
 
-          {/* KPIs */}
-          <div className="mt-16 bg-white rounded-xl shadow-xl p-6 grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x gap-4 sm:gap-0 text-daia-blue max-w-3xl">
-            <div className="text-center pt-4 first:pt-0 sm:pt-0">
-              <div className="text-3xl font-bold">30k+</div>
-              <div className="text-xs uppercase tracking-wider text-muted-foreground mt-1">
-                Empregos Ativos
+              {/* KPIs */}
+              <div className="mt-16 bg-white rounded-xl shadow-xl p-6 grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x gap-4 sm:gap-0 text-daia-blue max-w-3xl">
+                <div className="text-center pt-4 first:pt-0 sm:pt-0">
+                  <div className="text-3xl font-bold">30k+</div>
+                  <div className="text-xs uppercase tracking-wider text-muted-foreground mt-1">
+                    Empregos Ativos
+                  </div>
+                </div>
+                <div className="text-center pt-4 sm:pt-0">
+                  <div className="text-3xl font-bold">150+</div>
+                  <div className="text-xs uppercase tracking-wider text-muted-foreground mt-1">
+                    Empresas Instaladas
+                  </div>
+                </div>
+                <div className="text-center pt-4 sm:pt-0">
+                  <div className="text-2xl sm:text-3xl font-bold text-daia-green">Novas Obras</div>
+                  <div className="text-xs uppercase tracking-wider text-muted-foreground mt-1">
+                    Expansão do Setor 3
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="text-center pt-4 sm:pt-0">
-              <div className="text-3xl font-bold">150+</div>
-              <div className="text-xs uppercase tracking-wider text-muted-foreground mt-1">
-                Empresas Instaladas
-              </div>
-            </div>
-            <div className="text-center pt-4 sm:pt-0">
-              <div className="text-2xl sm:text-3xl font-bold text-daia-green">Novas Obras</div>
-              <div className="text-xs uppercase tracking-wider text-muted-foreground mt-1">
-                Expansão do Setor 3
-              </div>
+
+            {/* Mockup flutuante: reaproveita os mesmos componentes/tokens
+               usados no resto do produto (Card, Badge, cores DAIA) — só
+               ilustrativo, não puxa dado real. Escondido abaixo de lg pra
+               não brigar com o texto em telas estreitas. */}
+            <div className="hidden lg:block relative h-[380px]" aria-hidden="true">
+              <Card className="absolute top-2 right-0 w-[340px] rotate-[3deg] p-5 shadow-2xl border-transparent">
+                <div className="flex items-center gap-3">
+                  <div className="h-11 w-11 rounded-lg bg-daia-blue flex items-center justify-center text-white font-bold text-sm shrink-0">
+                    MT
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-foreground leading-tight truncate">
+                      Operador de Empilhadeira II
+                    </h3>
+                    <p className="text-xs text-muted-foreground truncate">Metaltech Indústria · DAIA</p>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex flex-wrap items-center gap-1.5">
+                  <Badge variant="secondary">CLT</Badge>
+                  <Badge variant="outline" className="font-normal text-muted-foreground">
+                    R$ 3.200 – 3.800
+                  </Badge>
+                  <Badge variant="warning">Pleno</Badge>
+                </div>
+
+                <div className="mt-4 pt-4 border-t flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <MatchRing value={94} />
+                    <span className="text-xs font-semibold text-daia-green leading-tight">
+                      Alta
+                      <br />
+                      compatibilidade
+                    </span>
+                  </div>
+                  <Button variant="success" size="sm">
+                    Candidatar-se
+                  </Button>
+                </div>
+              </Card>
+
+              <Card className="absolute bottom-2 left-0 w-[280px] rotate-[-3deg] p-4 shadow-2xl border-transparent z-10">
+                <div className="flex items-start gap-3">
+                  <div className="h-8 w-8 rounded-full bg-daia-yellow/20 flex items-center justify-center shrink-0">
+                    <Bell className="h-4 w-4 text-daia-yellow" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-bold text-foreground leading-tight">Nova vaga compatível!</div>
+                    <p className="text-xs text-muted-foreground mt-1 leading-snug">
+                      Metaltech Indústria publicou uma vaga de Auxiliar de Produção —{' '}
+                      <span className="font-semibold text-daia-green">85% de match</span>.
+                    </p>
+                  </div>
+                </div>
+              </Card>
             </div>
           </div>
         </div>
