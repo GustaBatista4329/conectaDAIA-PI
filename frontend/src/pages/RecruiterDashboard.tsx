@@ -46,22 +46,8 @@ export default function RecruiterDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-daia-blue">Métricas Operacionais</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Telemetria de recrutamento em tempo real para o Distrito Industrial de Anápolis.
-          </p>
-        </div>
-        <div className="text-left sm:text-right">
-          <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            Status do Sistema
-          </div>
-          <div className="mt-1 inline-flex items-center gap-2 text-sm font-semibold text-daia-green">
-            <span className="h-2 w-2 bg-daia-green rounded-full animate-pulse shrink-0" />
-            Uplink Setor 3 Ativo
-          </div>
-        </div>
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-bold text-daia-blue">Métricas Operacionais</h1>
       </div>
 
       {/* KPIs */}
@@ -120,13 +106,6 @@ export default function RecruiterDashboard() {
               </label>
             </div>
           </div>
-
-          <Card className="mt-5 p-4 gradient-daia text-white border-0">
-            <div className="text-sm font-semibold">Otimize a escala da sua linha de produção.</div>
-            <Button variant="outline" size="sm" className="mt-3 w-full bg-white/10 text-white border-white/30 hover:bg-white/20 hover:text-white">
-              VER ESTUDO DE CASO
-            </Button>
-          </Card>
         </Card>
 
         {/* Top Candidatos */}
