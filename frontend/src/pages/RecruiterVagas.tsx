@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Briefcase, DollarSign, Users, ChevronRight, X } from 'lucide-react'
+import { Plus, Briefcase, DollarSign, Users, ChevronRight, Pencil, X } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -68,6 +68,7 @@ export default function RecruiterVagas() {
   const [loading, setLoading] = useState(true)
 
   const [modalOpen, setModalOpen] = useState(false)
+  const [editando, setEditando] = useState<Vaga | null>(null)
   const [form, setForm] = useState<FormVaga>(FORM_INICIAL)
   const [novaSkill, setNovaSkill] = useState('')
   const [skills, setSkills] = useState<string[]>([])
@@ -85,9 +86,28 @@ export default function RecruiterVagas() {
     if (user?.empresaId) carregar(user.empresaId)
   }, [user])
 
-  const abrirModal = () => {
+  const abrirModalCriar = () => {
+    setEditando(null)
     setForm(FORM_INICIAL)
     setSkills([])
+    setNovaSkill('')
+    setModalOpen(true)
+  }
+
+  const abrirModalEditar = (vaga: Vaga) => {
+    setEditando(vaga)
+    setForm({
+      titulo: vaga.titulo,
+      descricao: vaga.descricao,
+      areaProfissional: vaga.areaProfissional,
+      distrito: vaga.distrito,
+      localTrabalho: vaga.localTrabalho,
+      nivel: vaga.nivel,
+      tipoContrato: vaga.tipoContrato,
+      salarioMin: vaga.salarioMin?.toString() ?? '',
+      salarioMax: vaga.salarioMax?.toString() ?? '',
+    })
+    setSkills(vaga.habilidadesRequeridas)
     setNovaSkill('')
     setModalOpen(true)
   }
@@ -107,7 +127,7 @@ export default function RecruiterVagas() {
     setSkills((prev) => prev.filter((s) => s !== nome))
   }
 
-  const criarVaga = async () => {
+  const salvarVaga = async () => {
     if (!user?.empresaId) return
 
     const titulo = form.titulo.trim()
@@ -150,23 +170,55 @@ export default function RecruiterVagas() {
 
     setSalvando(true)
     try {
-      await apiVagas.criar({
-        titulo,
-        descricao,
-        areaProfissional: form.areaProfissional,
-        distrito: form.distrito,
-        localTrabalho: form.localTrabalho,
-        nivel: NIVEL_NOME_PARA_CODIGO[form.nivel] ?? form.nivel,
-        tipoContrato: TIPO_CONTRATO_NOME_PARA_CODIGO[form.tipoContrato] ?? form.tipoContrato,
-        salarioMin,
-        salarioMax,
-        habilidadesRequeridas: skills,
-      })
-      show('Vaga publicada com sucesso!', 'success')
+      if (editando) {
+        // Diferente do "criar": em modo edição manda null explícito quando
+        // os dois campos ficam em branco, pra realmente limpar o salário
+        // existente — só "não enviar" faria o PATCH manter o valor antigo
+        // (exclude_unset no backend), que não é o que o usuário quis dizer
+        // ao apagar os dois campos.
+        const atualizado = await apiVagas.atualizar(editando.id, {
+          titulo,
+          descricao,
+          areaProfissional: form.areaProfissional,
+          distrito: form.distrito,
+          localTrabalho: form.localTrabalho,
+          nivel: NIVEL_NOME_PARA_CODIGO[form.nivel] ?? form.nivel,
+          tipoContrato: TIPO_CONTRATO_NOME_PARA_CODIGO[form.tipoContrato] ?? form.tipoContrato,
+          salarioMin: temMin ? salarioMin! : null,
+          salarioMax: temMax ? salarioMax! : null,
+          habilidadesRequeridas: skills,
+        })
+        if (!atualizado) {
+          show('Não foi possível salvar as alterações da vaga.', 'error')
+          return
+        }
+        show('Vaga atualizada com sucesso!', 'success')
+      } else {
+        await apiVagas.criar({
+          titulo,
+          descricao,
+          areaProfissional: form.areaProfissional,
+          distrito: form.distrito,
+          localTrabalho: form.localTrabalho,
+          nivel: NIVEL_NOME_PARA_CODIGO[form.nivel] ?? form.nivel,
+          tipoContrato: TIPO_CONTRATO_NOME_PARA_CODIGO[form.tipoContrato] ?? form.tipoContrato,
+          salarioMin,
+          salarioMax,
+          habilidadesRequeridas: skills,
+        })
+        show('Vaga publicada com sucesso!', 'success')
+      }
       setModalOpen(false)
       carregar(user.empresaId)
     } catch (e) {
-      show(e instanceof ApiError ? e.message : 'Não foi possível publicar a vaga.', 'error')
+      show(
+        e instanceof ApiError
+          ? e.message
+          : editando
+            ? 'Não foi possível salvar as alterações da vaga.'
+            : 'Não foi possível publicar a vaga.',
+        'error',
+      )
     } finally {
       setSalvando(false)
     }
@@ -187,11 +239,8 @@ export default function RecruiterVagas() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-3xl font-bold text-daia-blue">Gestão de Vagas</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Publique novas vagas e acompanhe as vagas da sua empresa.
-          </p>
         </div>
-        <Button onClick={abrirModal}>
+        <Button onClick={abrirModalCriar}>
           <Plus className="h-4 w-4" />
           Nova Vaga
         </Button>
@@ -205,7 +254,7 @@ export default function RecruiterVagas() {
           <p className="mt-3 text-sm text-muted-foreground">
             Sua empresa ainda não publicou nenhuma vaga.
           </p>
-          <Button className="mt-4" onClick={abrirModal}>
+          <Button className="mt-4" onClick={abrirModalCriar}>
             <Plus className="h-4 w-4" />
             Publicar Primeira Vaga
           </Button>
@@ -264,6 +313,10 @@ export default function RecruiterVagas() {
                   >
                     Ver Candidatos <ChevronRight className="h-3.5 w-3.5" />
                   </Button>
+                  <Button variant="ghost" size="sm" onClick={() => abrirModalEditar(v)}>
+                    <Pencil className="h-3.5 w-3.5" />
+                    Editar
+                  </Button>
                   {v.ativa && (
                     <Button
                       variant="ghost"
@@ -281,13 +334,15 @@ export default function RecruiterVagas() {
         </div>
       )}
 
-      {/* Modal criar vaga */}
+      {/* Modal criar/editar vaga */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Publicar Nova Vaga</DialogTitle>
+            <DialogTitle>{editando ? 'Editar Vaga' : 'Publicar Nova Vaga'}</DialogTitle>
             <DialogDescription>
-              Preencha os detalhes da vaga — quanto mais completo, melhor o match com candidatos.
+              {editando
+                ? 'Altere os detalhes da vaga — as mudanças já valem para novas candidaturas.'
+                : 'Preencha os detalhes da vaga — quanto mais completo, melhor o match com candidatos.'}
             </DialogDescription>
           </DialogHeader>
 
@@ -470,8 +525,14 @@ export default function RecruiterVagas() {
             <Button variant="outline" onClick={() => setModalOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={criarVaga} disabled={salvando}>
-              {salvando ? 'Publicando...' : 'Publicar Vaga'}
+            <Button onClick={salvarVaga} disabled={salvando}>
+              {salvando
+                ? editando
+                  ? 'Salvando...'
+                  : 'Publicando...'
+                : editando
+                  ? 'Salvar Alterações'
+                  : 'Publicar Vaga'}
             </Button>
           </DialogFooter>
         </DialogContent>

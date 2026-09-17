@@ -463,6 +463,30 @@ export const apiVagas = {
     const v = await apiFetch<BackendVaga>('/vagas', { method: 'POST', body: dados })
     return mapVaga(v)
   },
+
+  /** PATCH parcial — só envia o que veio em `dados`. O backend confere a
+   * dono da vaga pelo token (empresa do usuário logado), então não tem
+   * como editar vaga de outra empresa mesmo sabendo o id (ver RNE-001 em
+   * vaga_service.py). `nivel`/`tipoContrato`, quando presentes, também são
+   * `codigo`, igual ao `criar`. */
+  async atualizar(
+    id: string,
+    dados: Partial<{
+      titulo: string
+      areaProfissional: AreaProfissional
+      distrito: string
+      localTrabalho: LocalTrabalho
+      nivel: string
+      salarioMin: number | null
+      salarioMax: number | null
+      tipoContrato: string
+      descricao: string
+      habilidadesRequeridas: string[]
+    }>,
+  ): Promise<Vaga | null> {
+    const v = await apiFetchOrNull<BackendVaga>(`/vagas/${id}`, { method: 'PATCH', body: dados })
+    return v ? mapVaga(v) : null
+  },
 }
 
 // ============================================================
