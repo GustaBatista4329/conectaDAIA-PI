@@ -21,6 +21,7 @@ import { Label } from '@/components/ui/label'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/components/ui/toast'
 import { apiCandidatos } from '@/lib/api'
+import { getPerfilCompletoPercentual } from '@/lib/perfil'
 import { initials } from '@/lib/utils'
 import { LOCAL_TRABALHO_LABELS as localTrabalhoLabels } from '@/lib/vagaConstants'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -155,6 +156,12 @@ export default function CandidateProfile() {
       })
     }
   }, [user])
+
+  // Mesmo cálculo usado no card "Complete seu Perfil" do Painel (lib/perfil.ts)
+  // — garante que os dois lugares mostrem o mesmo número, em vez do
+  // `perfilCompleto` gamificado que vem do backend (incrementado por ação,
+  // não reflete se as seções estão de fato preenchidas).
+  const perfilCompletoPercentual = candidato ? getPerfilCompletoPercentual(candidato) : 0
 
   const skillsPorCategoria = candidato
     ? candidato.skills.reduce<Record<string, Skill[]>>((acc, s) => {
@@ -425,9 +432,9 @@ export default function CandidateProfile() {
                 <span className="font-semibold uppercase tracking-wider text-muted-foreground">
                   Perfil Completo
                 </span>
-                <span className="font-bold text-daia-green">{candidato.perfilCompleto}%</span>
+                <span className="font-bold text-daia-green">{perfilCompletoPercentual}%</span>
               </div>
-              <Progress value={candidato.perfilCompleto} />
+              <Progress value={perfilCompletoPercentual} />
             </div>
           </Card>
 

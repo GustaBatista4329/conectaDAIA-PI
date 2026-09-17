@@ -1,6 +1,15 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check, Eye, Calendar as CalendarIcon, ChevronRight, Zap, MapPin, Wrench } from 'lucide-react'
+import {
+  Check,
+  ChevronDown,
+  Eye,
+  Calendar as CalendarIcon,
+  ChevronRight,
+  Zap,
+  MapPin,
+  Wrench,
+} from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -8,7 +17,8 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/components/ui/toast'
 import { apiCandidatos, apiVagas, apiCandidaturas } from '@/lib/api'
 import type { Candidato, Vaga, Candidatura } from '@/types'
-import { formatDate } from '@/lib/utils'
+import { cn, formatDate } from '@/lib/utils'
+import { getPerfilChecklist, getPerfilCompletoPercentual } from '@/lib/perfil'
 import daiaTrafegoPlaceholder from '@/assets/daia_trafego.png'
 
 // Tráfego ao vivo (TomTom) desativado por ora. O componente continua pronto
@@ -38,6 +48,7 @@ export default function CandidateDashboard() {
   const [matches, setMatches] = useState<Array<Vaga & { matchPercentual: number }>>([])
   const [quickJobs, setQuickJobs] = useState<Vaga[]>([])
   const [candidaturas, setCandidaturas] = useState<Candidatura[]>([])
+  const [mostrarCompletos, setMostrarCompletos] = useState(false)
 
   useEffect(() => {
     if (!user?.candidatoId) return
@@ -59,6 +70,14 @@ export default function CandidateDashboard() {
     ? statusOrder.findIndex((s) => s.key === ultimaCandidatura.status)
     : 0
 
+  // Checklist real de completude do perfil (mesmo cálculo usado em "Meu
+  // Perfil", via lib/perfil.ts — garante que os dois lugares mostrem o
+  // mesmo número em vez do contador gamificado do backend).
+  const perfilChecklist = candidato ? getPerfilChecklist(candidato) : []
+  const perfilCompletoPercentual = candidato ? getPerfilCompletoPercentual(candidato) : 0
+  const perfilPendentes = perfilChecklist.filter((item) => !item.done)
+  const perfilCompletos = perfilChecklist.filter((item) => item.done)
+
   const handleApplyMatch = async (vaga: Vaga) => {
     if (!user?.candidatoId) return
     const res = await apiCandidaturas.candidatar(user.candidatoId, vaga.id)
@@ -72,41 +91,92 @@ export default function CandidateDashboard() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <div className="text-xs font-semibold uppercase tracking-widest text-daia-blue-mid">
-          Painel
-        </div>
-        <h1 className="text-3xl font-bold text-daia-blue mt-1">Painel</h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          Bem-vindo de volta, {candidato?.nome.split(' ')[0] ?? '...'}. Seu perfil está atingindo padrões industriais.
-        </p>
+        <h1 className="text-3xl font-bold text-daia-blue">
+          Bem-vindo de volta, {candidato?.nome.split(' ')[0] ?? '...'}!
+        </h1>
       </div>
 
-      {/* Banner candidatura em andamento */}
-      {ultimaCandidatura && (
-        <Card className="p-6 relative overflow-hidden">
-          <Badge variant="success" className="uppercase tracking-wider">
-            Candidatado
-          </Badge>
-          <h2 className="mt-2 text-xl font-bold text-daia-blue">Vagas Rápidas @ DAIA</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Complete suas certificações técnicas para desbloquear o "Selo de Prioridade".
-          </p>
-          <div className="mt-4 flex items-center gap-3">
-            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full bg-daia-green rounded-full transition-all"
-                style={{ width: `${Math.min(100, (currentStep + 1) * 25)}%` }}
-              />
+      {/* Complete seu perfil — checklist real, calculado a partir dos dados
+         do candidato (não é só decoração: reflete o que falta em "Meu
+         Perfil" e já leva pra lá). */}
+      {candidato && (
+        <Card className="p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-daia-blue">Complete seu Perfil</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Perfis completos aparecem mais nos resultados de match dos recrutadores.
+              </p>
             </div>
-            <span className="text-xs font-semibold text-daia-blue-mid">EM REVISÃO</span>
+            <span className="text-2xl font-bold text-daia-green shrink-0">{perfilCompletoPercentual}%</span>
           </div>
+
+          <div className="mt-4 h-1.5 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full bg-daia-green rounded-full transition-all"
+              style={{ width: `${perfilCompletoPercentual}%` }}
+            />
+          </div>
+
+          {/* Só o que falta fica visível de cara — o que já está pronto vai
+             pro dropdown abaixo, pra não poluir a tela com item riscado. */}
+          {perfilPendentes.length > 0 ? (
+            <ul className="mt-4 space-y-2">
+              {perfilPendentes.map((item) => (
+                <li key={item.label} className="flex items-center gap-2.5 text-sm">
+                  <span className="h-5 w-5 rounded-full border-2 border-muted shrink-0" />
+                  <span className="text-foreground">{item.label}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-4 text-sm font-medium text-daia-green flex items-center gap-2">
+              <Check className="h-4 w-4" />
+              Tudo certo! Seu perfil está completo.
+            </p>
+          )}
+
+          {perfilCompletos.length > 0 && (
+            <div className={cn('pt-3', perfilPendentes.length > 0 && 'mt-3 border-t border-border')}>
+              <button
+                type="button"
+                onClick={() => setMostrarCompletos((v) => !v)}
+                className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
+                aria-expanded={mostrarCompletos}
+              >
+                <ChevronDown
+                  className={cn('h-3.5 w-3.5 transition-transform', mostrarCompletos && 'rotate-180')}
+                />
+                {mostrarCompletos ? 'Ocultar' : 'Ver'} itens já completos ({perfilCompletos.length})
+              </button>
+
+              {mostrarCompletos && (
+                <ul className="mt-3 space-y-2">
+                  {perfilCompletos.map((item) => (
+                    <li key={item.label} className="flex items-center gap-2.5 text-sm">
+                      <span className="h-5 w-5 rounded-full bg-daia-green text-white flex items-center justify-center shrink-0">
+                        <Check className="h-3 w-3" />
+                      </span>
+                      <span className="text-muted-foreground line-through">{item.label}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
+          {perfilCompletoPercentual < 100 && (
+            <Button size="sm" className="mt-4" onClick={() => nav('/candidato/perfil')}>
+              Completar Perfil
+            </Button>
+          )}
         </Card>
       )}
 
-      {/* Matching Inteligente */}
+      {/* Vagas Rápidas (era "Matching Inteligente") */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-daia-blue">Matching Inteligente</h2>
+          <h2 className="text-xl font-bold text-daia-blue">Vagas Rápidas</h2>
           <button
             onClick={() => nav('/vagas')}
             className="text-sm font-semibold text-daia-blue-mid hover:underline inline-flex items-center gap-1"
@@ -205,7 +275,6 @@ export default function CandidateDashboard() {
         </Card>
 
         <Card className="p-5 space-y-3">
-          <h3 className="font-semibold text-daia-blue mb-2">Vagas Rápidas @ DAIA</h3>
           {quickJobs.map((v) => (
             <button
               key={v.id}
