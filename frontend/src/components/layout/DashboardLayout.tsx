@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useEffect, useRef, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
@@ -15,8 +15,11 @@ import {
   Menu,
   Search,
   User as UserIcon,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { LogoIcon } from '@/components/brand/Logo'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -100,6 +103,10 @@ export function DashboardLayout({ children }: { children?: ReactNode }) {
   const { user, logout } = useAuth()
   const nav = useNavigate()
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false)
+  // Sinaliza que devemos abrir o Dialog de confirmação assim que o
+  // DropdownMenu (Radix) terminar de fechar de verdade — ver
+  // onCloseAutoFocus no DropdownMenuContent, abaixo.
+  const openLogoutDialogAfterMenuCloseRef = useRef(false)
   // Só importa em telas md+ — abaixo disso a sidebar vira gaveta (drawer)
   // controlada por `mobileMenuOpen`, sempre fechada por padrão.
   const [sidebarOpen, setSidebarOpen] = useState(() => {
@@ -120,63 +127,108 @@ export function DashboardLayout({ children }: { children?: ReactNode }) {
     }
   }, [sidebarOpen])
 
+  // Fecha o diálogo de confirmação antes de efetivar o logout: se
+  // chamássemos `logout` direto, o usuário vira null e este componente
+  // inteiro desmonta (linha abaixo) no mesmo ciclo, arrancando o Dialog
+  // (Radix) da árvore com `open` ainda true. Isso pula a limpeza normal do
+  // scroll-lock/pointer-events que o Radix aplica no <body> enquanto o
+  // modal está aberto, deixando a tela travada até dar refresh. Fechando o
+  // diálogo primeiro e adiando o logout pro próximo tick, o Radix consegue
+  // concluir a transição de fechamento antes da árvore ser desmontada.
+  const handleConfirmLogout = () => {
+    setLogoutConfirmOpen(false)
+    setTimeout(logout, 0)
+  }
+
   if (!user) return null
   const config = navByRole[user.role]
 
-  const navLinks = (onNavigate?: () => void) => (
+  // `collapsed` só se aplica à sidebar de desktop no modo "rail" (ícones
+  // sem rótulo); a gaveta mobile sempre chama isso sem collapsed (sempre
+  // mostra os rótulos, já que lá o espaço não é um problema).
+  const navLinks = (onNavigate?: () => void, collapsed = false) => (
     <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
       {config.items.map((item) => (
         <NavLink
           key={item.to}
           to={item.to}
           onClick={onNavigate}
+          title={collapsed ? item.label : undefined}
           className={({ isActive }) =>
             cn(
-              'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+              'relative flex items-center gap-3 rounded-md text-sm font-medium transition-colors',
+              collapsed ? 'justify-center px-0 py-2.5' : 'px-3 py-2',
               isActive
                 ? 'bg-daia-blue-light text-daia-blue-mid'
                 : 'text-muted-foreground hover:bg-muted hover:text-foreground',
             )
           }
         >
-          <item.icon className="h-4 w-4 shrink-0" />
-          <span className="truncate">{item.label}</span>
+          {({ isActive }) => (
+            <>
+              {/* Borda de acento à esquerda no item ativo — reforça o
+                 destaque do fundo colorido, importante sobretudo no modo
+                 recolhido (só ícone) onde o fundo sozinho chama menos
+                 atenção. */}
+              {isActive && (
+                <span
+                  className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-daia-blue-mid"
+                  aria-hidden="true"
+                />
+              )}
+              <item.icon className="h-4 w-4 shrink-0" />
+              {!collapsed && <span className="truncate">{item.label}</span>}
+            </>
+          )}
         </NavLink>
       ))}
     </nav>
   )
 
-  const sidebarFooter = (onNavigate?: () => void) => (
+  const sidebarFooter = (onNavigate?: () => void, collapsed = false) => (
     <>
       {config.ctaLabel && (
-        <div className="px-3 py-3">
+        <div className={cn('py-3', collapsed ? 'px-3 flex justify-center' : 'px-3')}>
           <Button
-            className="w-full"
+            size={collapsed ? 'icon' : 'default'}
+            className={cn(!collapsed && 'w-full')}
+            title={collapsed ? config.ctaLabel : undefined}
+            aria-label={config.ctaLabel}
             onClick={() => {
               onNavigate?.()
               if (config.ctaTo) nav(config.ctaTo)
             }}
           >
             <PlusCircle className="h-4 w-4 shrink-0" />
-            <span className="truncate">{config.ctaLabel}</span>
+            {!collapsed && <span className="truncate">{config.ctaLabel}</span>}
           </Button>
         </div>
       )}
 
       <div className="px-3 py-3 border-t border-border space-y-1">
-        <button className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-muted w-full">
+        <button
+          title={collapsed ? 'Suporte' : undefined}
+          className={cn(
+            'flex items-center gap-3 rounded-md text-sm text-muted-foreground hover:bg-muted w-full',
+            collapsed ? 'justify-center px-0 py-2.5' : 'px-3 py-2',
+          )}
+        >
           <LifeBuoy className="h-4 w-4 shrink-0" />
-          Suporte
+          {!collapsed && 'Suporte'}
         </button>
         <button
           onClick={() => {
             onNavigate?.()
             setLogoutConfirmOpen(true)
           }}
-          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-destructive hover:bg-destructive/10 w-full"
+          title={collapsed ? 'Sair' : undefined}
+          className={cn(
+            'flex items-center gap-3 rounded-md text-sm text-destructive hover:bg-destructive/10 w-full',
+            collapsed ? 'justify-center px-0 py-2.5' : 'px-3 py-2',
+          )}
         >
           <LogOut className="h-4 w-4 shrink-0" />
-          Sair
+          {!collapsed && 'Sair'}
         </button>
       </div>
     </>
@@ -184,37 +236,54 @@ export function DashboardLayout({ children }: { children?: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-muted/30 flex">
-      {/* Rail fixo: só em telas md+ — no celular/tablet estreito o acesso ao
-         menu vira o botão de hambúrguer no topbar (gaveta abaixo). */}
-      <div className="hidden md:flex w-16 shrink-0 bg-white border-r border-border h-screen sticky top-0 flex-col items-center py-6">
-        <button
-          onClick={() => setSidebarOpen((v) => !v)}
-          className="h-9 w-9 rounded-md gradient-daia flex items-center justify-center text-white text-sm font-bold hover:opacity-90 transition-opacity"
-          aria-label={sidebarOpen ? 'Ocultar menu lateral' : 'Mostrar menu lateral'}
-          aria-pressed={sidebarOpen}
-          title={sidebarOpen ? 'Ocultar menu lateral' : 'Mostrar menu lateral'}
-        >
-          CD
-        </button>
-      </div>
-
-      {/* Sidebar (recolhível, só md+) */}
+      {/* Sidebar de desktop: um único painel recolhível (ícones-só quando
+         fechado, em vez de uma faixa fixa separada + painel largo — evita o
+         efeito de "duas barras coladas"). Só em telas md+ — no
+         celular/tablet estreito o acesso ao menu vira o botão de
+         hambúrguer no topbar (gaveta abaixo). */}
       <aside
         className={cn(
-          'hidden md:flex bg-white border-r border-border flex-col sticky top-0 h-screen shrink-0 overflow-hidden transition-[width] duration-200 ease-in-out',
-          sidebarOpen ? 'md:w-48' : 'md:w-0 border-r-0',
+          'hidden md:flex flex-col bg-white border-r border-border sticky top-0 h-screen shrink-0 overflow-hidden transition-[width] duration-200 ease-in-out',
+          sidebarOpen ? 'md:w-64' : 'md:w-16',
         )}
       >
-        <div className="w-48 flex flex-col h-full">
-          <div className="flex flex-col px-4 py-6 border-b border-border">
-            <span className="text-sm font-bold text-daia-blue truncate">{config.title}</span>
-            <span className="text-xs text-muted-foreground font-normal truncate">
-              {user.role === 'candidato' ? 'DAIA Sector 3' : 'Portal do Recrutador'}
-            </span>
-          </div>
-          {navLinks()}
-          {sidebarFooter()}
+        <div
+          className={cn(
+            'flex items-center gap-2.5 h-16 shrink-0 border-b border-border',
+            sidebarOpen ? 'px-4' : 'justify-center',
+          )}
+        >
+          <LogoIcon className="h-8 w-8 shrink-0" />
+          {sidebarOpen && (
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-bold text-daia-blue truncate leading-tight">{config.title}</div>
+              <div className="text-[11px] text-muted-foreground truncate">
+                {user.role === 'candidato' ? 'DAIA Sector 3' : 'Portal do Recrutador'}
+              </div>
+            </div>
+          )}
         </div>
+
+        {navLinks(undefined, !sidebarOpen)}
+        {sidebarFooter(undefined, !sidebarOpen)}
+
+        <button
+          onClick={() => setSidebarOpen((v) => !v)}
+          className={cn(
+            'flex items-center gap-2 h-11 shrink-0 border-t border-border text-muted-foreground hover:bg-muted hover:text-foreground transition-colors',
+            sidebarOpen ? 'px-4' : 'justify-center',
+          )}
+          aria-label={sidebarOpen ? 'Recolher menu lateral' : 'Expandir menu lateral'}
+          aria-pressed={sidebarOpen}
+          title={sidebarOpen ? 'Recolher menu lateral' : 'Expandir menu lateral'}
+        >
+          {sidebarOpen ? (
+            <PanelLeftClose className="h-4 w-4 shrink-0" />
+          ) : (
+            <PanelLeftOpen className="h-4 w-4 shrink-0" />
+          )}
+          {sidebarOpen && <span className="text-xs font-medium">Recolher menu</span>}
+        </button>
       </aside>
 
       {/* Gaveta mobile: overlay + painel deslizante, só existe abaixo de md */}
@@ -314,7 +383,25 @@ export function DashboardLayout({ children }: { children?: ReactNode }) {
                       </Avatar>
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent
+                    align="end"
+                    onCloseAutoFocus={(e) => {
+                      // Dispara exatamente quando o DropdownMenu (Radix)
+                      // termina de fechar de verdade — já desmontado, já com
+                      // seu próprio scroll-lock/pointer-events limpos. Abrir o
+                      // Dialog aqui (em vez de num setTimeout com prazo
+                      // "chutado") evita ter dois "layers" do Radix
+                      // sobrepostos, que travam o <body> com
+                      // pointer-events:none pra sempre (confirmado via teste
+                      // manual — um setTimeout(0) não bastava, a animação de
+                      // saída do dropdown dura mais que isso).
+                      if (openLogoutDialogAfterMenuCloseRef.current) {
+                        openLogoutDialogAfterMenuCloseRef.current = false
+                        e.preventDefault()
+                        setLogoutConfirmOpen(true)
+                      }
+                    }}
+                  >
                     {perfilPath && (
                       <DropdownMenuItem onClick={() => nav(perfilPath)}>
                         <UserIcon className="h-4 w-4" />
@@ -326,7 +413,12 @@ export function DashboardLayout({ children }: { children?: ReactNode }) {
                       Configurações
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem destructive onClick={() => setLogoutConfirmOpen(true)}>
+                    <DropdownMenuItem
+                      destructive
+                      onSelect={() => {
+                        openLogoutDialogAfterMenuCloseRef.current = true
+                      }}
+                    >
                       <LogOut className="h-4 w-4" />
                       Sair da Conta
                     </DropdownMenuItem>
@@ -355,7 +447,7 @@ export function DashboardLayout({ children }: { children?: ReactNode }) {
             <Button variant="outline" onClick={() => setLogoutConfirmOpen(false)}>
               Cancelar
             </Button>
-            <Button variant="destructive" onClick={logout}>
+            <Button variant="destructive" onClick={handleConfirmLogout}>
               <LogOut className="h-4 w-4" />
               Sair
             </Button>

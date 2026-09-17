@@ -4,6 +4,7 @@ import { Mail, Lock, Eye, EyeOff, ShieldCheck, Landmark, ArrowLeft } from 'lucid
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
+import { LogoBadge, Wordmark } from '@/components/brand/Logo'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/components/ui/toast'
 
@@ -51,11 +52,9 @@ export default function Login() {
       {/* Painel esquerdo - identidade */}
       <div className="hidden lg:flex lg:w-5/12 gradient-daia text-white p-12 flex-col justify-between relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[url('https://images.unsplash.com/photo-1565043666747-69f6646db940?auto=format&fit=crop&w=1200&q=60')] bg-cover bg-center" />
-        <div className="relative z-10">
-          <div className="text-2xl font-bold">ConectaDAIA</div>
-          <div className="text-xs uppercase tracking-widest text-white/70 mt-1">
-            Portal Institucional
-          </div>
+        <div className="relative z-10 flex items-center gap-3">
+          <LogoBadge className="h-11 w-11" />
+          <Wordmark tone="dark" withTagline className="text-2xl" />
         </div>
 
         <div className="relative z-10">

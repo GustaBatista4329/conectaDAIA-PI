@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { LogoIcon, Wordmark } from '@/components/brand/Logo'
 import { useAuth } from '@/contexts/AuthContext'
 import { cn } from '@/lib/utils'
 
@@ -81,11 +82,9 @@ export function PublicNavbar() {
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4 lg:gap-10 min-w-0">
-          <Link to="/" className="flex items-center gap-2 font-bold text-daia-blue text-lg shrink-0">
-            <div className="h-8 w-8 shrink-0 rounded-md gradient-daia flex items-center justify-center text-white text-sm">
-              CD
-            </div>
-            <span>ConectaDAIA</span>
+          <Link to="/" className="flex items-center gap-2 text-lg shrink-0">
+            <LogoIcon className="h-9 w-9 shrink-0" />
+            <Wordmark className="text-lg" />
           </Link>
           <nav className="hidden md:flex items-center gap-1">
             {navItems.map((item) => (

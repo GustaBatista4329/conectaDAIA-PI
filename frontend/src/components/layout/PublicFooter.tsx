@@ -1,11 +1,15 @@
 import { Link } from 'react-router-dom'
+import { LogoBadge, Wordmark } from '@/components/brand/Logo'
 
 export function PublicFooter() {
   return (
     <footer className="gradient-daia text-white mt-20">
       <div className="mx-auto max-w-7xl px-6 py-12 grid md:grid-cols-4 gap-8">
         <div>
-          <div className="font-bold text-lg mb-3">ConectaDAIA</div>
+          <div className="flex items-center gap-2.5 mb-3">
+            <LogoBadge className="h-9 w-9" />
+            <Wordmark tone="dark" />
+          </div>
           <p className="text-sm text-white/70 max-w-xs">
             A ponte entre a excelência industrial e os melhores talentos no coração do Brasil.
           </p>
