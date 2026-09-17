@@ -1,8 +1,8 @@
-# Regras: listar (com filtros), obter, criar, desativar
+# Regras: listar (com filtros), obter, criar, atualizar, desativar
 # RNE-001 (documento do projeto): só a empresa dona pode alterar a própria vaga.
 import uuid
 
-from sqlalchemy import func, or_, select
+from sqlalchemy import delete, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -10,7 +10,7 @@ from app.models.cadastros import Nivel, TipoContrato
 from app.models.candidatura import Candidatura
 from app.models.empresa import Empresa
 from app.models.vaga import Vaga, VagaHabilidade
-from app.schemas.vaga import VagaCreate, VagaFiltros, VagaRead
+from app.schemas.vaga import VagaCreate, VagaFiltros, VagaRead, VagaUpdate
 
 _OPTIONS = (
     selectinload(Vaga.empresa),
@@ -115,6 +115,56 @@ async def criar(db: AsyncSession, empresa_id: int, dados: VagaCreate) -> VagaRea
     resultado = await db.execute(select(Vaga).where(Vaga.vaga_id == vaga.vaga_id).options(*_OPTIONS))
     vaga = resultado.scalar_one()
     return VagaRead.from_model(vaga, total_candidatos=0)
+
+
+async def atualizar(db: AsyncSession, empresa_id: int, vaga_id: int, dados: VagaUpdate) -> VagaRead:
+    # `empresa_id` vem do token (current_user.empresa_id no router), nunca do
+    # corpo da requisição — é o que garante que só a empresa dona da vaga
+    # edita ela (RNE-001), igual ao `desativar` logo abaixo.
+    vaga_obj = await db.get(Vaga, vaga_id)
+    if vaga_obj is None:
+        raise ValueError("Vaga não encontrada")
+    if vaga_obj.empresa_id != empresa_id:
+        raise PermissionError("Você não tem permissão para alterar esta vaga")
+
+    campos = dados.model_dump(exclude_unset=True)
+
+    if "nivel" in campos:
+        nivel_resultado = await db.execute(select(Nivel).where(Nivel.codigo == campos["nivel"]))
+        nivel = nivel_resultado.scalar_one_or_none()
+        if nivel is None:
+            raise ValueError(f"Nível inválido: {campos['nivel']}")
+        vaga_obj.nivel_id = nivel.nivel_id
+        del campos["nivel"]
+
+    if "tipo_contrato" in campos:
+        tipo_resultado = await db.execute(
+            select(TipoContrato).where(TipoContrato.codigo == campos["tipo_contrato"])
+        )
+        tipo_contrato = tipo_resultado.scalar_one_or_none()
+        if tipo_contrato is None:
+            raise ValueError(f"Tipo de contrato inválido: {campos['tipo_contrato']}")
+        vaga_obj.tipo_contrato_id = tipo_contrato.tipo_contrato_id
+        del campos["tipo_contrato"]
+
+    # Pop antes do loop genérico abaixo: habilidades não é uma coluna da
+    # Vaga, é uma tabela relacionada (substitui tudo, igual ao "criar").
+    habilidades = campos.pop("habilidades_requeridas", None)
+
+    for campo, valor in campos.items():
+        setattr(vaga_obj, campo, valor)
+
+    if habilidades is not None:
+        await db.execute(delete(VagaHabilidade).where(VagaHabilidade.vaga_id == vaga_id))
+        for nome_habilidade in habilidades:
+            db.add(VagaHabilidade(vaga_id=vaga_id, nome=nome_habilidade))
+
+    await db.commit()
+
+    resultado = await db.execute(select(Vaga).where(Vaga.vaga_id == vaga_id).options(*_OPTIONS))
+    vaga_obj = resultado.scalar_one()
+    total = await _contar_candidatos(db, vaga_id)
+    return VagaRead.from_model(vaga_obj, total_candidatos=total)
 
 
 async def desativar(db: AsyncSession, empresa_id: int, vaga_id: int) -> VagaRead:

@@ -1,11 +1,12 @@
-# Rotas: GET /vagas, GET /vagas/{id}, POST /vagas, PATCH /vagas/{id}/desativar
+# Rotas: GET /vagas, GET /vagas/{id}, POST /vagas, PATCH /vagas/{id},
+# PATCH /vagas/{id}/desativar
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
 from app.deps import require_role
 from app.models.user import User
-from app.schemas.vaga import MatchResponse, VagaCreate, VagaFiltros, VagaRead
+from app.schemas.vaga import MatchResponse, VagaCreate, VagaFiltros, VagaRead, VagaUpdate
 from app.services import matching_service, vaga_service
 
 router = APIRouter(prefix="/vagas", tags=["vagas"])
@@ -44,6 +45,21 @@ async def criar(
         return await vaga_service.criar(db, current_user.empresa_id, body)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.patch("/{vaga_id}", response_model=VagaRead)
+async def atualizar(
+    vaga_id: int,
+    body: VagaUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role("empresa")),
+):
+    try:
+        return await vaga_service.atualizar(db, current_user.empresa_id, vaga_id, body)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
 
 
 @router.patch("/{vaga_id}/desativar", response_model=VagaRead)
