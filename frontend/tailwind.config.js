@@ -48,7 +48,7 @@ export default {
           blue: '#0A2A5E',      // azul institucional profundo
           'blue-mid': '#1E4AA8',// azul médio (CTAs primários)
           'blue-light': '#E8F0FE',
-          green: '#00A859',     // verde da bandeira (sucesso / accent)
+          green: '#00A651',     // verde da bandeira (sucesso / accent) — cor oficial da marca ConectaDAIA
           'green-soft': '#D4F4DD',
           yellow: '#FFC72C',    // amarelo bandeira (alertas pontuais)
           red: '#D92D20',
