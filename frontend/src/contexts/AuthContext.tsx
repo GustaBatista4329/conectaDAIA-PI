@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { apiAuth, CandidatoRegistro, EmpresaRegistro } from '@/lib/api'
 import { ApiError } from '@/lib/http'
 import type { User } from '@/types'
@@ -30,6 +31,7 @@ function extrairMensagemErro(e: unknown, fallback = 'Não foi possível concluir
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
 
   // Restaurar sessão a partir do token salvo (se houver e ainda for válido)
   useEffect(() => {
@@ -79,6 +81,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     apiAuth.logout()
     localStorage.removeItem(STORAGE_KEY)
     setUser(null)
+    // Sempre volta pra landing page, não importa em que rota o usuário
+    // estava (pública ou protegida) — antes o redirect só acontecia como
+    // efeito colateral do ProtectedRoute, e só dentro de rotas protegidas.
+    navigate('/', { replace: true })
   }
 
   const atualizarNome = async (nome: string) => {
